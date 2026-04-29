@@ -1,0 +1,107 @@
+<ion-header [translucent]="true">
+  <ion-toolbar>
+    <ion-title>Search Movies</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true">
+  <ion-header collapse="condense">
+    <ion-toolbar>
+      <ion-title size="large">Search Movies</ion-title>
+    </ion-toolbar>
+  </ion-header>
+
+  <div class="search-container">
+    <div class="search-box">
+      <form (ngSubmit)="onSearch()">
+        <ion-item>
+          <ion-label position="floating">Search for movies, TV shows...</ion-label>
+          <ion-input
+            type="text"
+            [(ngModel)]="searchQuery"
+            name="searchQuery"
+            [clearInput]="true"
+            (ionClear)="clearSearch()">
+          </ion-input>
+        </ion-item>
+        <ion-button
+          expand="block"
+          (click)="onSearch()"
+          [disabled]="isLoading || !searchQuery.trim()">
+          {{ isLoading ? 'Searching...' : 'Search' }}
+        </ion-button>
+      </form>
+    </div>
+
+    <!-- Loading Spinner -->
+    <div *ngIf="isLoading" class="loading-container">
+      <ion-spinner name="crescent"></ion-spinner>
+      <p>Searching for movies...</p>
+    </div>
+
+    <!-- Error Message -->
+    <ion-text *ngIf="errorMessage && !isLoading" color="danger">
+      <p class="error-message">{{ errorMessage }}</p>
+    </ion-text>
+
+    <!-- Search Results -->
+    <div *ngIf="!isLoading && searchResults.length > 0" class="search-results">
+      <ion-list>
+        <ion-item *ngFor="let result of searchResults">
+          <ion-card class="result-card">
+            <div class="card-content">
+              <div class="poster-container">
+                <ion-img
+                  [src]="result.image"
+                  [alt]="result.title"
+                  (error)="result.image = 'assets/default-poster.jpg'">
+                </ion-img>
+              </div>
+              <div class="movie-info">
+                <ion-card-header>
+                  <ion-card-title>{{ result.title }}</ion-card-title>
+                  <ion-card-subtitle>Year: {{ result.year }}</ion-card-subtitle>
+                </ion-card-header>
+                <ion-card-content>
+                  <p>{{ result.description }}</p>
+                  <ion-button
+                    fill="clear"
+                    size="small"
+                    (click)="viewMovieDetails(result.id)">
+                    View Details
+                  </ion-button>
+                </ion-card-content>
+              </div>
+            </div>
+          </ion-card>
+        </ion-item>
+      </ion-list>
+    </div>
+
+    <!-- No Results Message -->
+    <div *ngIf="!isLoading && !errorMessage && searchResults.length === 0 && searchQuery"
+         class="no-results">
+      <ion-text color="medium">
+        <p>No results found for "{{ searchQuery }}"</p>
+      </ion-text>
+    </div>
+  </div>
+</ion-content>
+
+<div class="tabs-group">
+  <ion-tab-bar slot="bottom">
+    <ion-tab-button tab="search">
+      <ion-icon aria-hidden="true" name="search"></ion-icon>
+      Search
+    </ion-tab-button>
+    <ion-tab-button tab="watchlist">
+      <ion-icon aria-hidden="true" name="list-outline"></ion-icon>">
+      Watchlist
+    </ion-tab-button>
+    <ion-tab-button tab="watched">
+      <ion-icon aria-hidden="true"  name="checkmark-circle-outline"></ion-icon>
+      Watched
+    </ion-tab-button>
+  </ion-tab-bar>
+</div>
+

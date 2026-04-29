@@ -1,0 +1,106 @@
+.search-container {
+  padding: 16px;
+}
+
+.search-box {
+  margin-bottom: 20px;
+}
+
+.loading-container {
+  text-align: center;
+  margin-top: 40px;
+
+  ion-spinner {
+    width: 48px;
+    height: 48px;
+    margin-bottom: 16px;
+  }
+}
+
+.error-message {
+  text-align: center;
+  margin-top: 20px;
+  padding: 16px;
+  background-color: rgba(var(--ion-color-danger-rgb), 0.1);
+  border-radius: 8px;
+}
+
+.search-results {
+  margin-top: 20px;
+
+  ion-item {
+    --padding-start: 0;
+    --inner-padding-end: 0;
+    margin-bottom: 16px;
+  }
+}
+
+.result-card {
+  width: 100%;
+  margin: 0;
+
+  .card-content {
+    display: flex;
+    flex-direction: row;
+    padding: 12px;
+
+    @media (max-width: 576px) {
+      flex-direction: column;
+    }
+  }
+
+  .poster-container {
+    flex-shrink: 0;
+    width: 120px;
+    height: 180px;
+    margin-right: 16px;
+
+    @media (max-width: 576px) {
+      width: 100%;
+      height: auto;
+      margin-right: 0;
+      margin-bottom: 16px;
+    }
+
+    img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      border-radius: 8px;
+    }
+  }
+
+  .movie-info {
+    flex: 1;
+
+    ion-card-header {
+      padding: 0 0 8px 0;
+    }
+
+    ion-card-content {
+      padding: 0;
+    }
+  }
+}
+
+.no-results {
+  text-align: center;
+  margin-top: 40px;
+  padding: 32px;
+}
+
+// Optional: Add animation for results
+.result-card {
+  transition: transform 0.2s ease;
+
+  &:hover {
+    transform: translateY(-2px);
+  }
+}
+
+.tabs-group{
+  max-height: 55px;
+  height: 100%;
+  width: 100%;
+  bottom: 0;
+}

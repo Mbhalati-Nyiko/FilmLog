@@ -46,7 +46,7 @@ export class LoginPage implements OnInit {
       console.error('Registration failed');
       console.log('All usernames and emails:', this.authService.getAllUsers());
       //Remove all users from local storage for testing purposes
-      // localStorage.removeItem('users');
+      localStorage.removeItem('users');
       // Show error message (consider adding a toast notification)
     }
   }
@@ -57,7 +57,7 @@ export class LoginPage implements OnInit {
     if (success) {
       console.log('Login successful');
       // Navigate to home/dashboard page
-      this.router.navigate(['/']); // Adjust route as needed
+      this.router.navigate(['/search']); // Adjust route as needed
       // Clear sensitive data from memory
       this.logInObj.password = '';
     } else {

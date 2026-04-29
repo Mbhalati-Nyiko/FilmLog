@@ -1,0 +1,234 @@
+ion-toolbar {
+  --background: transparent;
+  --border-color: transparent;
+
+  ion-back-button {
+    --color: white;
+  }
+
+  .header-title {
+    color: white;
+    font-weight: 600;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+  }
+}
+
+ion-content {
+  --background: dark;
+}
+
+.hero-container {
+  position: relative;
+  margin-bottom: 20px;
+}
+
+.hero-image-wrapper {
+  position: relative;
+  width: 100%;
+  height: 70vh;
+  min-height: 500px;
+  overflow: hidden;
+}
+
+.hero-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center 20%;
+}
+
+/* Multiple gradient layers for shadow effect */
+.hero-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(
+    to bottom,
+    rgba(0, 0, 0, 0.3) 0%,
+    rgba(0, 0, 0, 0.1) 30%,
+    transparent 60%
+  );
+}
+
+.hero-gradient {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 200px;
+  background: linear-gradient(
+    to bottom,
+    transparent 0%,
+    rgba(0, 0, 0, 0.7) 50%,
+    rgba(0, 0, 0, 0.95) 100%
+  );
+  pointer-events: none;
+}
+
+/* Floating Action Buttons */
+.floating-buttons {
+  position: absolute;
+  bottom: 20px;
+  left: 16px;
+  right: 16px;
+  display: flex;
+  gap: 12px;
+  z-index: 10;
+
+  .action-btn {
+    flex: 1;
+    --border-radius: 12px;
+    --padding-top: 14px;
+    --padding-bottom: 14px;
+    font-weight: 600;
+    text-transform: none;
+    letter-spacing: 0.5px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+
+    &::part(native) {
+      border-radius: 12px;
+    }
+  }
+}
+
+/* Movie Info Section */
+.movie-info-section {
+  padding: 20px 16px 40px;
+  // background: var(--ion-background-color);
+  border-radius: 24px 24px 0 0;
+  margin-top: -24px;
+  position: relative;
+  z-index: 5;
+}
+
+.title-section {
+  margin-bottom: 20px;
+
+  .movie-title {
+    font-size: 28px;
+    font-weight: 700;
+    margin: 0 0 12px 0;
+    line-height: 1.2;
+    color: var(--ion-text-color);
+  }
+
+  .movie-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 8px;
+  }
+}
+
+.genres-section {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 24px;
+}
+
+.description-section,
+.director-section,
+.cast-section {
+  margin-bottom: 24px;
+
+  h3 {
+    font-size: 18px;
+    font-weight: 600;
+    margin: 0 0 12px 0;
+    color: var(--ion-text-color);
+    letter-spacing: -0.3px;
+  }
+
+  p {
+    font-size: 15px;
+    line-height: 1.5;
+    color: var(--ion-color-medium);
+    margin: 0;
+  }
+}
+
+.cast-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+/* Animation for buttons */
+.action-btn {
+  transition: transform 0.2s ease;
+
+  &:active {
+    transform: scale(0.98);
+  }
+}
+
+/* Responsive adjustments */
+@media (max-width: 576px) {
+  .hero-image-wrapper {
+    height: 60vh;
+    min-height: 400px;
+  }
+
+  .movie-info-section {
+    padding: 16px;
+  }
+
+  .movie-title {
+    font-size: 24px;
+  }
+
+  .floating-buttons {
+    flex-direction: column;
+    gap: 10px;
+    bottom: 16px;
+  }
+}
+
+/* Parallax effect on scroll */
+.hero-image {
+  transition: transform 0.3s ease-out;
+}
+
+ion-content {
+  --ion-background-color: var(--ion-background-color);
+}
+
+/* Custom scrollbar for webkit */
+::-webkit-scrollbar {
+  width: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--ion-color-medium);
+  border-radius: 3px;
+}
+
+.movie-cast-description{
+  width: 100%;
+  display: flex;
+  height: 75px;
+  justify-content: center;
+  align-items: center;
+  top: 0;
+}
+
+.description-heading{
+  padding-left: 20px;
+  align-items: center;
+  justify-content: center;
+  top: 0;
+}
+
+.description-text p{
+  padding-left: 20px;
+  align-items: center;
+  top: 0;
+}
+

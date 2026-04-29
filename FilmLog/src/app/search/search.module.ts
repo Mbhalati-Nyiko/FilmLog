@@ -7,6 +7,7 @@ import { ExploreContainerComponentModule } from '../explore-container/explore-co
 import { SearchPageRoutingModule } from './search-routing.module';
 import { SearchPage } from './search.page';
 import { TabsPage } from '../tabs/tabs.page';
+import { LoaderPage } from '../pages/loader/loader.page';
 
 
 @NgModule({
@@ -16,7 +17,9 @@ import { TabsPage } from '../tabs/tabs.page';
     FormsModule,
     ExploreContainerComponentModule,
     SearchPageRoutingModule,
+    LoaderPage,
+    TabsPage
   ],
-  declarations: [SearchPage, TabsPage]
+  declarations: [SearchPage,]
 })
 export class SearchPageModule {}

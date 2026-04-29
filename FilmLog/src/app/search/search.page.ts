@@ -1,6 +1,6 @@
 import { MovieData, Movie } from './../service/movie-data';
 import { Component } from '@angular/core';
-import { Router } from '@angular/router'
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-search',
@@ -14,8 +14,9 @@ export class SearchPage {
   isLoading: boolean = false;
   errorMessage: string = '';
 
-  constructor(private movieData: MovieData,
-    private router : Router
+  constructor(
+    private movieData: MovieData,
+    private router: Router
   ) {}
 
   onSearch() {
@@ -58,10 +59,23 @@ export class SearchPage {
     this.errorMessage = '';
   }
 
-  // Add to search.page.ts
-  viewMovieDetails(movieId: string) {
-  console.log('View details for movie:', movieId);
-  // Navigate to movie details page
-  this.router.navigate(['/movie-details', movieId]);
-}
+  // Safe helper method to get truncated description
+  getShortDescription(description: string | undefined): string {
+    if (!description) {
+      return 'No description available';
+    }
+
+    const maxLength = 80;
+    if (description.length <= maxLength) {
+      return description;
+    }
+
+    return description.substring(0, maxLength) + '...';
+  }
+
+  viewMovieDetails(movie: Movie) {
+    this.router.navigate(['/movie-details'], {
+      state: { movie: movie }
+    });
+  }
 }

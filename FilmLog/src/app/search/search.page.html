@@ -12,20 +12,21 @@
   </ion-header>
 
   <div class="search-container">
+
     <div class="search-box">
       <form (ngSubmit)="onSearch()">
         <ion-item>
-          <ion-label position="floating">Search for movies, TV shows...</ion-label>
-          <ion-input
-            type="text"
+          <ion-searchbar
+            animated="true"
+            placeholder="Search for movies, TV shows..."
             [(ngModel)]="searchQuery"
             name="searchQuery"
-            [clearInput]="true"
             (ionClear)="clearSearch()">
-          </ion-input>
+          </ion-searchbar>
         </ion-item>
         <ion-button
           expand="block"
+          color="dark"
           (click)="onSearch()"
           [disabled]="isLoading || !searchQuery.trim()">
           {{ isLoading ? 'Searching...' : 'Search' }}
@@ -35,8 +36,9 @@
 
     <!-- Loading Spinner -->
     <div *ngIf="isLoading" class="loading-container">
-      <ion-spinner name="crescent"></ion-spinner>
-      <p>Searching for movies...</p>
+      <!-- <ion-spinner name="crescent"></ion-spinner>
+      <p>Searching for movies...</p> -->
+      <app-loader></app-loader>
     </div>
 
     <!-- Error Message -->
@@ -44,38 +46,52 @@
       <p class="error-message">{{ errorMessage }}</p>
     </ion-text>
 
-    <!-- Search Results -->
+    <!-- Search Results - Grid Layout (2 columns) -->
     <div *ngIf="!isLoading && searchResults.length > 0" class="search-results">
-      <ion-list>
-        <ion-item *ngFor="let result of searchResults">
-          <ion-card class="result-card">
-            <div class="card-content">
-              <div class="poster-container">
-                <ion-img
-                  [src]="result.image"
-                  [alt]="result.title"
-                  (error)="result.image = 'assets/default-poster.jpg'">
-                </ion-img>
+      <ion-grid class="results-grid">
+
+        <ion-row>
+          <ion-col size="6" *ngFor="let result of searchResults">
+            <ion-card class="result-card">
+
+              <div class="card-content">
+
+                <div class="poster-container">
+                  <ion-img
+                    [src]="result.image"
+                    [alt]="result.title"
+                    (ionError)="result.image = 'assets/default-poster.jpg'">
+                  </ion-img>
+                </div>
+
+                <div class="movie-info">
+
+                  <ion-card-header>
+                    <ion-card-title>{{ result.title }}</ion-card-title>
+                    <ion-card-subtitle>Year: {{ result.year }}</ion-card-subtitle>
+                  </ion-card-header>
+
+                  <ion-card-content>
+
+                    <!-- Safe description with length check -->
+                    <p>{{ getShortDescription(result.description) }}</p>
+
+
+                    <ion-button
+                      fill="clear"
+                      size="small"
+                      (click)="viewMovieDetails(result)">
+                      View Details
+                    </ion-button>
+
+                  </ion-card-content>
+
+                </div>
               </div>
-              <div class="movie-info">
-                <ion-card-header>
-                  <ion-card-title>{{ result.title }}</ion-card-title>
-                  <ion-card-subtitle>Year: {{ result.year }}</ion-card-subtitle>
-                </ion-card-header>
-                <ion-card-content>
-                  <p>{{ result.description }}</p>
-                  <ion-button
-                    fill="clear"
-                    size="small"
-                    (click)="viewMovieDetails(result.id)">
-                    View Details
-                  </ion-button>
-                </ion-card-content>
-              </div>
-            </div>
-          </ion-card>
-        </ion-item>
-      </ion-list>
+            </ion-card>
+          </ion-col>
+        </ion-row>
+      </ion-grid>
     </div>
 
     <!-- No Results Message -->
@@ -85,23 +101,8 @@
         <p>No results found for "{{ searchQuery }}"</p>
       </ion-text>
     </div>
+
   </div>
 </ion-content>
 
-<div class="tabs-group">
-  <ion-tab-bar slot="bottom">
-    <ion-tab-button tab="search">
-      <ion-icon aria-hidden="true" name="search"></ion-icon>
-      Search
-    </ion-tab-button>
-    <ion-tab-button tab="watchlist">
-      <ion-icon aria-hidden="true" name="list-outline"></ion-icon>">
-      Watchlist
-    </ion-tab-button>
-    <ion-tab-button tab="watched">
-      <ion-icon aria-hidden="true"  name="checkmark-circle-outline"></ion-icon>
-      Watched
-    </ion-tab-button>
-  </ion-tab-bar>
-</div>
 

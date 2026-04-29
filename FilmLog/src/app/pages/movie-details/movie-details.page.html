@@ -1,18 +1,117 @@
-<ion-header [translucent]="true">
-  <ion-toolbar>
-    <ion-title>movie-details</ion-title>
+<ion-header class="ion-no-border" [translucent]="true">
+  <ion-toolbar color="transparent">
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/search"></ion-back-button>
+    </ion-buttons>
+    <ion-title class="header-title">Movie Details</ion-title>
   </ion-toolbar>
 </ion-header>
 
-<ion-content [fullscreen]="true">
-  <ion-header collapse="condense">
-    <ion-toolbar>
-      <ion-title size="large">Movie-details</ion-title>
-    </ion-toolbar>
-  </ion-header>
+<ion-content [fullscreen]="true" *ngIf="movie">
 
-  <div>
+  <!-- Hero Image with Gradient Overlay -->
+  <div class="hero-container">
+    <div class="hero-image-wrapper">
+      <ion-img
+        [src]="movie.image"
+        [alt]="movie.title"
+        class="hero-image"
+        (ionError)="movie.image = 'assets/default-poster.jpg'"></ion-img>
+      <div class="hero-overlay"></div>
+      <div class="hero-gradient"></div>
+    </div>
 
+    <!-- Floating Action Buttons -->
+    <div class="floating-buttons">
+
+      <ion-button
+        [color]="isWatched ? 'success' : 'light'"
+        (click)="toggleWatched()"
+        class="action-btn">
+        <ion-icon [name]="isWatched ? 'checkmarkCircle' : 'checkmarkCircleOutline'" slot="start"></ion-icon>
+        {{ isWatched ? 'Watched' : 'Mark as Watched' }}
+      </ion-button>
+
+      <ion-button
+        [color]="isInWatchlist ? 'primary' : 'light'"
+        (click)="toggleWatchlist()"
+        class="action-btn">
+        <ion-icon [name]="isInWatchlist ? 'bookmark' : 'bookmarkOutline'" slot="start"></ion-icon>
+        {{ isInWatchlist ? 'In Watchlist' : 'Add to Watchlist' }}
+      </ion-button>
+
+    </div>
   </div>
 
+  <!-- Movie Info Section -->
+  <div class="movie-info-section">
+
+    <!-- Title and Meta -->
+    <div class="title-section">
+      <h1 class="movie-title">{{ movie.title }}</h1>
+
+    </div>
+
+    <!-- Genre Chips -->
+    <!-- <div class="genres-section" *ngIf="movie.genre?.length">
+      <ion-chip *ngFor="let genre of movie.genre" color="medium" outline>
+        {{ genre }}
+      </ion-chip>
+    </div> -->
+
+    <div class="movie-cast-description">
+      <div class="movie-meta">
+        <ion-chip *ngIf="movie.year">
+          <!-- <ion-icon name="calendarOutline"></ion-icon> -->
+          <ion-label>{{ movie.year }}</ion-label>
+        </ion-chip>
+        <!-- <ion-chip *ngIf="movie.runtime">
+          <ion-icon name="timeOutline"></ion-icon>
+          <ion-label>{{ movie.runtime }}</ion-label>
+        </ion-chip>
+        <ion-chip *ngIf="movie.rating">
+          <ion-icon name="star"></ion-icon>
+          <ion-label>{{ movie.rating }}/10</ion-label>
+        </ion-chip> -->
+      </div>
+      <div class="description-heading">
+        <h3>Cast</h3>
+      </div>
+      <div class="description-text" >
+        <p>{{ getSafeDescription(movie.description) }}</p>
+      </div>
+    </div>
+
+    <!-- Description - Safe display -->
+    <!-- <div class="description-section">
+      <h3>Synopsis</h3>
+      <p>{{ getSafeDescription(movie.description) }}</p>
+    </div> -->
+
+    <!-- Director -->
+    <!-- <div class="director-section" *ngIf="movie.director">
+      <h3>Director</h3>
+      <p>{{ movie.director }}</p>
+    </div> -->
+
+    <!-- Cast -->
+    <!-- <div class="cast-section" *ngIf="movie.cast?.length">
+      <h3>Cast</h3>
+      <div class="cast-list">
+        <ion-chip *ngFor="let actor of movie.cast" color="light">
+          <ion-icon name="peopleOutline"></ion-icon>
+          <ion-label>{{ actor }}</ion-label>
+        </ion-chip>
+      </div>
+    </div> -->
+  </div>
+
+  <!-- Toast Notifications -->
+  <ion-toast
+    [isOpen]="showToast"
+    [message]="toastMessage"
+    [color]="toastColor"
+    [duration]="2000"
+    position="bottom">
+  </ion-toast>
 </ion-content>

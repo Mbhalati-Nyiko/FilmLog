@@ -1,8 +1,6 @@
 <ion-header [translucent]="true">
   <ion-toolbar>
-    <ion-title>
-      Watchlist
-    </ion-title>
+    <ion-title>Watchlist</ion-title>
   </ion-toolbar>
 </ion-header>
 
@@ -13,5 +11,70 @@
     </ion-toolbar>
   </ion-header>
 
-  <!-- <app-explore-container name="Watchlist page"></app-explore-container> -->
+  <!-- Empty State -->
+  <div *ngIf="!isLoading && watchlist.length === 0" class="empty-state">
+    <ion-icon name="bookmark-outline" class="empty-icon"></ion-icon>
+    <h3>Your watchlist is empty</h3>
+    <p>Start adding movies you want to watch later!</p>
+    <ion-button (click)="goToSearch()" color="primary" fill="outline">
+      <ion-icon name="search-outline" slot="start"></ion-icon>
+      Browse Movies
+    </ion-button>
+  </div>
+
+  <!-- Loading State -->
+  <div *ngIf="isLoading" class="loading-container">
+    <ion-spinner name="crescent"></ion-spinner>
+    <p>Loading your watchlist...</p>
+  </div>
+
+  <!-- Watchlist Items -->
+  <div *ngIf="!isLoading && watchlist.length > 0" class="watchlist-container">
+    <ion-list lines="full">
+      <ion-item
+        *ngFor="let movie of watchlist"
+        (click)="viewMovieDetails(movie)"
+        class="watchlist-item"
+        button>
+
+        <!-- Poster Thumbnail -->
+        <div class="item-poster" slot="start">
+          <ion-img
+            [src]="movie.image"
+            [alt]="movie.title"
+            (ionError)="movie.image = 'assets/default-poster.jpg'">
+          </ion-img>
+        </div>
+
+        <!-- Movie Info -->
+        <ion-label class="movie-info">
+          <h2>{{ movie.title }}</h2>
+          <p *ngIf="movie.year">Released: {{ movie.year }}</p>
+          <p class="description">{{ getShortDescription(movie.description) }}</p>
+        </ion-label>
+
+        <!-- Remove Button -->
+        <ion-button
+          slot="end"
+          fill="clear"
+          color="danger"
+          (click)="removeFromWatchlist(movie.id, $event)"
+          class="remove-btn">
+          <ion-icon name="trash-outline" slot="icon-only"></ion-icon>
+        </ion-button>
+      </ion-item>
+    </ion-list>
+
+    <!-- Optional: Clear All Button -->
+    <div class="clear-all-container" *ngIf="watchlist.length > 0">
+      <ion-button
+        expand="block"
+        fill="clear"
+        color="danger"
+        (click)="clearAllWatchlist()">
+        <ion-icon name="trash-outline" slot="start"></ion-icon>
+        Clear All Watchlist
+      </ion-button>
+    </div>
+  </div>
 </ion-content>

@@ -9,15 +9,17 @@ export interface Movie {
   year?: string;
   image?: string;
   description?: string;
+  rating?: string;
+  runtime?: string;
+  genre?: string[];
+  director?: string;
+  cast?: string[];
 }
 
 @Injectable({
   providedIn: 'root',
 })
 export class MovieData {
-  // Note: This is a free API without authentication
-  // Rate limited: https://imdb.iamidiotareyoutoo.com/
-
   constructor(private http: HttpClient) {}
 
   getMovies(searchQuery: string): Observable<Movie[]> {
@@ -29,14 +31,13 @@ export class MovieData {
 
     return this.http.get<any>(url).pipe(
       map(response => {
-        // Transform API response to our Movie interface
         if (response && response.description && response.description.length > 0) {
           return response.description.map((item: any) => ({
-            id: item['#IMDB_ID'] || item.id,
+            id: item['#IMDB_ID'] || item.id || `temp_${Math.random()}`,
             title: item['#TITLE'] || item.title || 'Unknown Title',
             year: item['#YEAR'] || item.year || 'N/A',
             image: item['#IMG_POSTER'] || item.image || 'assets/default-poster.jpg',
-            description: item['#ACTORS'] || item.description || 'No description available'
+            description: this.safeDescription(item['#ACTORS'] || item.description)
           }));
         }
         return [];
@@ -46,5 +47,22 @@ export class MovieData {
         return throwError(() => new Error('Failed to fetch movies. Please try again.'));
       })
     );
+  }
+
+  // Safe description formatter
+  private safeDescription(description: any): string {
+    if (!description) {
+      return 'No description available for this movie.';
+    }
+
+    if (typeof description === 'string') {
+      return description.trim() || 'No description available for this movie.';
+    }
+
+    if (Array.isArray(description)) {
+      return description.join(', ') || 'No description available for this movie.';
+    }
+
+    return 'No description available for this movie.';
   }
 }

@@ -109,8 +109,12 @@ ion-col {
 }
 
 .tabs-group{
-  max-height: 55px;
-  height: 100%;
-  width: 100%;
-  bottom: 0;
+
 }
+
+ion-buttons ion-button{
+  --color: black;
+  --color-hover: #8371fd;
+  --background: white;
+}
+

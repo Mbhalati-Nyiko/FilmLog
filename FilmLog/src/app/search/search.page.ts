@@ -1,6 +1,7 @@
 import { MovieData, Movie } from './../service/movie-data';
 import { Component } from '@angular/core';
 import { Router } from '@angular/router';
+import { AuthenticationService } from '../service/authentication-service';
 
 @Component({
   selector: 'app-search',
@@ -16,8 +17,29 @@ export class SearchPage {
 
   constructor(
     private movieData: MovieData,
-    private router: Router
+    private router: Router,
+    private authService : AuthenticationService
   ) {}
+
+  goToSearch(){
+    this.router.navigate(['/search']);
+    return;
+  }
+
+  goToWatchlist(){
+    this.router.navigate(['/watchlist']);
+    return;
+  }
+
+  goToWatched(){
+    this.router.navigate(['/watched']);
+    return;
+  }
+
+  logOut(){
+    this.authService.logout();
+    this.router.navigate(['/login']);
+  }
 
   onSearch() {
     if (!this.searchQuery.trim()) {

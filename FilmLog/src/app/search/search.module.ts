@@ -10,6 +10,7 @@ import { TabsPage } from '../tabs/tabs.page';
 import { LoaderPage } from '../pages/loader/loader.page';
 
 
+
 @NgModule({
   imports: [
     IonicModule,

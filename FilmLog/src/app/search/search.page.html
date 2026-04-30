@@ -4,12 +4,26 @@
   </ion-toolbar>
 </ion-header>
 
-<ion-content [fullscreen]="true">
+<ion-content [fullscreen]="false">
   <ion-header collapse="condense">
-    <ion-toolbar>
-      <ion-title size="large">Search Movies</ion-title>
-    </ion-toolbar>
-  </ion-header>
+  <ion-toolbar>
+    <!-- Title on the left -->
+    <ion-title size="large">Search</ion-title>
+
+    <!-- Button on the right -->
+    <!-- <ion-buttons slot="end" >
+      <ion-button size="large" fill="solid">
+        Logout
+        <ion-icon slot="icon-only" name="log-in-outline" md="settings-sharp"></ion-icon>
+      </ion-button>
+    </ion-buttons> -->
+    <ion-progress-bar *ngIf="isLoading" type="indeterminate"></ion-progress-bar>
+  </ion-toolbar>
+</ion-header>
+
+
+
+
 
   <div class="search-container">
 
@@ -102,7 +116,32 @@
       </ion-text>
     </div>
 
+
+
+
   </div>
 </ion-content>
+
+<div class="tabs-group">
+      <ion-tab-bar slot="bottom">
+    <ion-tab-button (click)="goToSearch()">
+      <ion-icon name="search-outline"></ion-icon>
+      Search
+    </ion-tab-button>
+    <ion-tab-button (click)="goToWatchlist()">
+      <ion-icon name="list-outline"></ion-icon>
+      Watchlist
+    </ion-tab-button>
+    <ion-tab-button (click)="goToWatched()">
+      <ion-icon name="checkmark-circle-outline"></ion-icon>
+      Watched
+    </ion-tab-button>
+    <ion-tab-button (click)="logOut()">
+      <ion-icon name="log-out-outline"></ion-icon>
+      Logout
+    </ion-tab-button>
+    </ion-tab-bar>
+  </div>
+
 
 

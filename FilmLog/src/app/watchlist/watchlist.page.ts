@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { AppStorage } from '../service/app-storage';
+import { AuthenticationService } from '../service/authentication-service';
 import { Movie } from '../service/movie-data';
 import { Router } from '@angular/router';
 
@@ -12,26 +13,61 @@ import { Router } from '@angular/router';
 export class WatchlistPage implements OnInit {
   watchlist: Movie[] = [];
   isLoading: boolean = false;
+  isLoggedIn: boolean = false;
 
   constructor(
     private appStorage: AppStorage,
+    private authService: AuthenticationService,
     private router: Router
   ) {}
 
+  goToSearch(){
+    this.router.navigate(['/search']);
+    return;
+  }
+
+  goToWatchlist(){
+    this.router.navigate(['/watchlist']);
+    return;
+  }
+
+  goToWatched(){
+    this.router.navigate(['/watched']);
+    return;
+  }
+
+  logOut(){
+    this.authService.logout();
+    this.router.navigate(['/login']);
+}
+
   async ngOnInit() {
-    await this.loadWatchlist();
+    this.checkAuth();
   }
 
   async ionViewWillEnter() {
-    // Refresh watchlist every time the page is viewed
-    await this.loadWatchlist();
+    this.checkAuth();
+    if (this.isLoggedIn) {
+      await this.loadWatchlist();
+    }
+  }
+
+  checkAuth() {
+    this.isLoggedIn = this.authService.isAuthenticated();
+
+    if (!this.isLoggedIn) {
+      // Redirect to login if not authenticated
+      this.router.navigate(['/login']);
+    }
   }
 
   async loadWatchlist() {
+    if (!this.isLoggedIn) return;
+
     this.isLoading = true;
     try {
       this.watchlist = await this.appStorage.getWatchlist();
-      console.log('Watchlist loaded:', this.watchlist.length, 'items');
+      console.log('Watchlist loaded for user:', this.authService.getCurrentUser()?.username, this.watchlist.length, 'items');
     } catch (error) {
       console.error('Error loading watchlist:', error);
     } finally {
@@ -46,13 +82,11 @@ export class WatchlistPage implements OnInit {
   }
 
   async removeFromWatchlist(movieId: string, event: Event) {
-    event.stopPropagation(); // Prevent triggering the item click
+    event.stopPropagation();
 
     try {
       await this.appStorage.removeFromWatchlist(movieId);
-      await this.loadWatchlist(); // Refresh the list
-
-      // Optional: Show toast notification (add IonToast to template if needed)
+      await this.loadWatchlist();
       console.log('Movie removed from watchlist');
     } catch (error) {
       console.error('Error removing from watchlist:', error);
@@ -60,16 +94,14 @@ export class WatchlistPage implements OnInit {
   }
 
   async clearAllWatchlist() {
-    // Optional: Add confirmation alert
     const confirmed = confirm('Are you sure you want to clear your entire watchlist?');
 
     if (confirmed) {
       try {
-        // Remove each movie individually
         for (const movie of this.watchlist) {
           await this.appStorage.removeFromWatchlist(movie.id);
         }
-        await this.loadWatchlist(); // Refresh the list
+        await this.loadWatchlist();
         console.log('Watchlist cleared');
       } catch (error) {
         console.error('Error clearing watchlist:', error);
@@ -77,11 +109,7 @@ export class WatchlistPage implements OnInit {
     }
   }
 
-  goToSearch() {
-    this.router.navigate(['/search']);
-  }
 
-  // Helper method to safely truncate description
   getShortDescription(description: string | undefined): string {
     if (!description) {
       return 'No description available';

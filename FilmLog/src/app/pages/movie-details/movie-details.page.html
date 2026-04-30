@@ -7,7 +7,7 @@
   </ion-toolbar>
 </ion-header>
 
-<ion-content [fullscreen]="true" *ngIf="movie">
+<ion-content [fullscreen]="false" *ngIf="movie">
 
   <!-- Hero Image with Gradient Overlay -->
   <div class="hero-container">
@@ -115,3 +115,24 @@
     position="bottom">
   </ion-toast>
 </ion-content>
+
+<div class="tabs-group">
+      <ion-tab-bar slot="bottom">
+    <ion-tab-button (click)="goToSearch()">
+      <ion-icon name="search-outline"></ion-icon>
+      Search
+    </ion-tab-button>
+    <ion-tab-button (click)="goToWatchlist()">
+      <ion-icon name="list-outline"></ion-icon>
+      Watchlist
+    </ion-tab-button>
+    <ion-tab-button (click)="goToWatched()">
+      <ion-icon name="checkmark-circle-outline"></ion-icon>
+      Watched
+    </ion-tab-button>
+    <ion-tab-button (click)="logOut()">
+      <ion-icon name="log-out-outline"></ion-icon>
+      Logout
+    </ion-tab-button>
+    </ion-tab-bar>
+</div>

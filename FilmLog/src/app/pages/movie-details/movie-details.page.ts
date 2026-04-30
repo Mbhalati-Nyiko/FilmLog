@@ -20,6 +20,7 @@ import {
   peopleOutline
 } from 'ionicons/icons';
 import { AppStorage } from 'src/app/service/app-storage';
+import { AuthenticationService } from 'src/app/service/authentication-service'
 
 export interface Movie {
   id: string;
@@ -47,11 +48,13 @@ export class MovieDetailsPage implements OnInit {
   showToast: boolean = false;
   toastMessage: string = '';
   toastColor: string = 'success';
+  isLoggedIn: boolean = false;
 
   constructor(
     private route: ActivatedRoute,
     private router: Router,
-    private appStorage: AppStorage
+    private appStorage: AppStorage,
+    private authService : AuthenticationService
   ) {
     addIcons({
       bookmarkOutline,
@@ -66,7 +69,37 @@ export class MovieDetailsPage implements OnInit {
     });
   }
 
+  goToSearch(){
+    this.router.navigate(['/search']);
+    return;
+  }
+
+  goToWatchlist(){
+    this.router.navigate(['/watchlist']);
+    return;
+  }
+
+  goToWatched(){
+    this.router.navigate(['/watched']);
+    return;
+  }
+
+  logOut(){
+    this.authService.logout();
+    this.router.navigate(['/login']);
+  }
+
   async ngOnInit() {
+
+    // Check if user is logged in
+    this.isLoggedIn = this.authService.isAuthenticated();
+
+    if (!this.isLoggedIn) {
+      this.router.navigate(['/login']);
+      return;
+    }
+
+    // Rest of your existing ngOnInit code...
     const navigation = this.router.getCurrentNavigation();
     const state = navigation?.extras.state as { movie: Movie };
 

@@ -3,7 +3,8 @@ import { Component, OnInit, ViewChild, ElementRef } from '@angular/core';
 import { IonInput, IonToggle } from "@ionic/angular/standalone";
 import { FormsModule } from '@angular/forms';
 import { AuthenticationService } from '../../service/authentication-service';
-import { Router } from '@angular/router'; // Add this for navigation
+import { Router } from '@angular/router';
+import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 
 @Component({
   selector: 'app-login',
@@ -12,57 +13,84 @@ import { Router } from '@angular/router'; // Add this for navigation
   styleUrls: ['./login.page.scss'],
 })
 export class LoginPage implements OnInit {
+  loginForm: FormGroup;
+  signupForm: FormGroup;
   signUpObj: SignUpModel = new SignUpModel();
   logInObj: LogInModel = new LogInModel();
   isSignUpMode: boolean = false;
   myImagePath = "assets/logo/FilmLog-Logo.jpg";
+  isLoading = false;
+  errorMessage = '';
 
   @ViewChild('toggle') toggleRef!: ElementRef<IonToggle>;
   @ViewChild('loginContainer') loginContainerRef!: ElementRef;
 
   constructor(
     private authService: AuthenticationService,
-    private router: Router // Add Router for navigation
-  ) {}
+    private router: Router,
+    private fb: FormBuilder) {
+    this.loginForm = this.fb.group({
+      username: ['', [Validators.required, Validators.minLength(3)]],
+      password: ['', [Validators.required, Validators.minLength(6)]]
+    });
 
-  ngOnInit() {}
+    this.signupForm = this.fb.group({
+      username: ['', [Validators.required, Validators.minLength(3)]],
+      email: ['', [Validators.required, Validators.email]],
+      password: ['', [Validators.required, Validators.minLength(6)]]
+    });
+  }
+
+  ngOnInit() {
+    // Check if already logged in
+    if (this.authService.isAuthenticated()) {
+      this.router.navigate(['/search']);
+    }
+  }
 
   ngAfterViewInit() {
     // Optional: Animation or initialization logic here
   }
 
   onRegister() {
+    this.isLoading = true;
+    this.errorMessage = '';
+
     const success = this.authService.onRegister(this.signUpObj);
 
     if (success) {
       console.log('Registration successful');
       // Clear form after successful registration
       this.signUpObj = new SignUpModel();
-      // Optionally switch to login mode
+      // Switch to login mode
       this.isSignUpMode = false;
-      // Show success message (consider adding a toast notification)
+      // Show success message
+      alert('Registration successful! Please login.');
     } else {
-      // Handle registration error
+      this.errorMessage = 'Registration failed. User may already exist.';
       console.error('Registration failed');
-      console.log('All usernames and emails:', this.authService.getAllUsers());
-      //Remove all users from local storage for testing purposes
-      localStorage.removeItem('users');
-      // Show error message (consider adding a toast notification)
     }
+
+    this.isLoading = false;
   }
 
-  onLogin() {
-    const success = this.authService.login(this.logInObj);
+  async onLogin() {
+    this.isLoading = true;
+    this.errorMessage = '';
 
-    if (success) {
-      console.log('Login successful');
-      // Navigate to home/dashboard page
-      this.router.navigate(['/search']); // Adjust route as needed
-      // Clear sensitive data from memory
-      this.logInObj.password = '';
-    } else {
-      console.error('Login failed');
-      // Handle login error - show user feedback
+    try {
+      const success = this.authService.login(this.logInObj);
+      if (success) {
+        console.log('Login successful, navigating to search');
+        this.router.navigate(['/search']);
+      } else {
+        this.errorMessage = 'Invalid username or password';
+      }
+    } catch (error) {
+      this.errorMessage = 'An error occurred. Please try again.';
+      console.error('Login error:', error);
+    } finally {
+      this.isLoading = false;
     }
   }
 
@@ -71,12 +99,14 @@ export class LoginPage implements OnInit {
     // Clear forms when toggling
     if (this.isSignUpMode) {
       this.logInObj = new LogInModel();
+      this.errorMessage = '';
     } else {
       this.signUpObj = new SignUpModel();
+      this.errorMessage = '';
     }
   }
 
-  logout() {
+  logOut(){
     this.authService.logout();
     this.router.navigate(['/login']);
   }

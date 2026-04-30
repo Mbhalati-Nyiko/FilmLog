@@ -161,3 +161,29 @@
     }
   }
 }
+
+ion-tab-bar{
+  --background: black;
+}
+
+ion-tab-button{
+  --color: white;
+  --background: black;
+}
+
+.active-tab{
+  --background: #8371fd;
+}
+
+ion-item{
+  --background: black;
+}
+
+ion-toolbar{
+  --background: black;
+  // --padding-top: 20px;
+}
+
+ion-content {
+  --background: black;
+}

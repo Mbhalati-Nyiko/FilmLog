@@ -1,8 +1,10 @@
 import { Component, OnInit } from '@angular/core';
 import { AppStorage } from '../service/app-storage';
 import { AuthenticationService } from '../service/authentication-service';
-import { Movie } from '../service/movie-data';
+import { Movie } from '../pages/movie-details/movie-details.page';
 import { Router } from '@angular/router';
+import { AlertController } from '@ionic/angular';
+import { MovieDetailsPage } from '../pages/movie-details/movie-details.page';
 
 @Component({
   selector: 'app-watchlist',
@@ -18,7 +20,8 @@ export class WatchlistPage implements OnInit {
   constructor(
     private appStorage: AppStorage,
     private authService: AuthenticationService,
-    private router: Router
+    private router: Router,
+    private alertController : AlertController,
   ) {}
 
   goToSearch(){
@@ -58,6 +61,88 @@ export class WatchlistPage implements OnInit {
     if (!this.isLoggedIn) {
       // Redirect to login if not authenticated
       this.router.navigate(['/login']);
+    }
+  }
+
+  async refreshWatchlist() {
+    await this.loadWatchlist();
+  }
+
+  async moveToWatched(movie: Movie) {
+    const alert = await this.alertController.create({
+      header: 'Move to Watched',
+      message: `Mark "${movie.title}" as watched? This will remove it from your watchlist.`,
+      buttons: [
+        {
+          text: 'Cancel',
+          role: 'cancel',
+          cssClass: 'secondary'
+        },
+        {
+          text: 'Yes, Mark as Watched',
+          handler: async () => {
+            await this.performMoveToWatched(movie);
+          }
+        }
+      ]
+    });
+
+    await alert.present();
+  }
+
+   async performMoveToWatched(movie: Movie) {
+    this.isLoading = true;
+
+
+    try {
+      // Add to watched list
+      await this.appStorage.addToWatched(movie);
+
+      // Remove from watchlist
+      await this.appStorage.removeFromWatchlist(movie.id);
+
+      // Reload watchlist
+      await this.loadWatchlist();
+
+      // Show success message
+      const successAlert = await this.alertController.create({
+        header: 'Success!',
+        message: `"${movie.title}" has been moved to your watched list.`,
+        buttons: ['OK'],
+        cssClass: 'success-alert'
+      });
+
+      await successAlert.present();
+
+      console.log(`Movie "${movie.title}" moved to watched`);
+    } catch (error) {
+      console.error('Error moving to watched:', error);
+      const errorAlert = await this.alertController.create({
+        header: 'Error',
+        message: 'Failed to move movie. Please try again.',
+        buttons: ['OK']
+      });
+      await errorAlert.present();
+    } finally {
+      this.isLoading = false;
+    }
+  }
+
+  async performRemoveFromWatchlist(movieId: string) {
+    this.isLoading = true;
+    try {
+      await this.appStorage.removeFromWatchlist(movieId);
+      await this.loadWatchlist();
+
+      const toast = document.createElement('ion-toast');
+      toast.message = 'Movie removed from watchlist';
+      toast.duration = 2000;
+      document.body.appendChild(toast);
+      toast.present();
+    } catch (error) {
+      console.error('Error removing from watchlist:', error);
+    } finally {
+      this.isLoading = false;
     }
   }
 

@@ -1,6 +1,6 @@
 <ion-header [translucent]="true">
   <ion-toolbar>
-    <ion-title>Search Movies</ion-title>
+    <ion-title size="large">Search Movies</ion-title>
   </ion-toolbar>
 </ion-header>
 
@@ -29,23 +29,32 @@
 
     <div class="search-box">
       <form (ngSubmit)="onSearch()">
-        <ion-item>
+        <!-- <ion-item> -->
           <ion-searchbar
+          color="dark"
             animated="true"
             placeholder="Search for movies, TV shows..."
             [(ngModel)]="searchQuery"
             name="searchQuery"
             (ionClear)="clearSearch()">
           </ion-searchbar>
-        </ion-item>
-        <ion-button
+        <!-- </ion-item> -->
+        <!-- <ion-button
           expand="block"
           color="dark"
           (click)="onSearch()"
           [disabled]="isLoading || !searchQuery.trim()">
           {{ isLoading ? 'Searching...' : 'Search' }}
-        </ion-button>
+        </ion-button> -->
+
       </form>
+
+      <button type="submit" class="search-btn"
+        (click)="onSearch()"
+          [disabled]="isLoading || !searchQuery.trim()">
+          {{ isLoading ? 'Searching...' : 'Search' }}
+      </button>
+
     </div>
 
     <!-- Loading Spinner -->
@@ -124,7 +133,7 @@
 
 <div class="tabs-group">
       <ion-tab-bar slot="bottom">
-    <ion-tab-button (click)="goToSearch()">
+    <ion-tab-button class="active-tab" (click)="goToSearch()">
       <ion-icon name="search-outline"></ion-icon>
       Search
     </ion-tab-button>
@@ -141,7 +150,7 @@
       Logout
     </ion-tab-button>
     </ion-tab-bar>
-  </div>
+</div>
 
 
 

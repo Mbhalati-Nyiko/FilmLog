@@ -11,8 +11,9 @@
   overflow: hidden;
   // background-color: #ff8c6b;
   // background-color: #8371fd;
-  background-color: #151111;
+  // background-color: #151111;
   // background-color: #fff;
+  background-color: black;
   padding: 2rem;
   display: flex;
   align-items: center;
@@ -25,8 +26,8 @@
   max-width: 1020px;
   height: 640px;
   // background-color: #fff;
-  background-color: #151111;
-
+  // background-color: #151111;
+  background-color: black;
   border-radius: 3.3rem;
   // box-shadow: 0 60px 40px -30px rgba( 0, 0, 0, 0.27);
 }
@@ -86,8 +87,9 @@ form.sign-up-form{
 }
 
 .logo{
-  display: flex;
+  display: block;
   align-items: center;
+  justify-content: center;
 }
 
 .logo img{
@@ -95,12 +97,20 @@ form.sign-up-form{
   margin-right: 0.3rem;
 }
 
-.logo h4{
-  font-size: 1.1rem;
-  margin-top: -9px;
+.logo h2{
+  // font-size: 1.1rem;
+  margin-top: 5px;
   letter-spacing: -0.5px;
   // color: #151111;
   color: white;
+}
+
+.logo p{
+  padding-top: 10px;
+}
+
+.logo-image{
+  display: flex;
 }
 
 .heading h2{

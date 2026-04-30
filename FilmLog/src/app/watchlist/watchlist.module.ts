@@ -13,8 +13,9 @@ import { WatchlistPageRoutingModule } from './watchlist-routing.module';
     CommonModule,
     FormsModule,
     ExploreContainerComponentModule,
-    WatchlistPageRoutingModule
+    WatchlistPageRoutingModule,
+
   ],
-  declarations: [WatchlistPage]
+  declarations: [WatchlistPage ]
 })
 export class WatchlistPageModule {}

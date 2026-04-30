@@ -1,3 +1,4 @@
+import { User } from './../models/userModel';
 // authentication-service.ts
 import { Injectable } from '@angular/core';
 import { LogInModel, SignUpModel } from '../pages/login/login.page';

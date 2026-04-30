@@ -1,9 +1,17 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap');
+
+body{
+  font-family: 'Poppins', sans-serif;
+}
+
 .search-container {
+  background-color: black;
   padding: 16px;
 }
 
 .search-box {
   margin-bottom: 20px;
+  background-color: black;
 }
 
 .loading-container {
@@ -29,6 +37,7 @@
   margin-top: 20px;
 
   ion-item {
+    --background: black;
     --padding-start: 0;
     --inner-padding-end: 0;
     margin-bottom: 16px;
@@ -109,7 +118,7 @@ ion-col {
 }
 
 .tabs-group{
-
+  background-color: black;
 }
 
 ion-buttons ion-button{
@@ -118,3 +127,54 @@ ion-buttons ion-button{
   --background: white;
 }
 
+ion-content {
+  --background: black;
+}
+
+.search-btn{
+  display: inline-block;
+  width: 90%;
+  height: 42px;
+  // background-color: #151111;
+  background-color: #8371fd;
+  // color: #fff;
+  color: #151111;
+  border: none;
+  cursor: pointer;
+  border-radius: 0.8rem;
+  font-size: 0.8rem;
+  margin-bottom: 2rem;
+  margin-left: 20px;
+}
+
+form{
+  width: 100%;
+  margin: 0 auto;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-evenly;
+  padding-bottom: 20px;
+}
+
+ion-item{
+  --background: black;
+}
+
+ion-toolbar{
+  --background: black;
+  // --padding-top: 20px;
+}
+
+ion-tab-bar{
+  --background: black;
+}
+
+ion-tab-button{
+  --color: white;
+  --background: black;
+}
+
+.active-tab{
+  --background: #8371fd;
+}

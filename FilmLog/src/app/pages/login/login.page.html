@@ -9,9 +9,15 @@
         <!-- Sign In Form -->
         <form class="sign-in-form" (ngSubmit)="onLogin()">
           <div class="logo">
-            <img [src]="myImagePath" alt="FilmLog">
-            <h4>FilmLog</h4>
+            <div class="logo-image">
+              <img [src]="myImagePath" alt="FilmLog">
+              <h2>FilmLog</h2>
+            </div>
+            <div>
+              <p>Track your movie journey</p>
+            </div>
           </div>
+
 
           <div class="heading">
             <h2>Welcome Back</h2>
@@ -53,7 +59,7 @@
             <button type="submit" class="sign-btn">Sign In</button>
 
             <p class="text">
-              <a href="#" (click)="$event.preventDefault()">Forgot password?</a>
+              <a href="#" (click)="$event.preventDefault(); showUsers()">Forgot password?</a>
             </p>
         </form>
 
@@ -133,4 +139,13 @@
 
     </div>
   </div>
+
+  <!-- Toast Notifications -->
+  <ion-toast
+    [isOpen]="showToast"
+    [message]="toastMessage"
+    [color]="toastColor"
+    [duration]="2000"
+    position="bottom">
+  </ion-toast>
 </div>

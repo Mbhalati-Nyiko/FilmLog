@@ -33,7 +33,6 @@
     <ion-list lines="full">
       <ion-item
         *ngFor="let movie of watchlist"
-        (click)="viewMovieDetails(movie)"
         class="watchlist-item"
         button>
 
@@ -46,12 +45,35 @@
           </ion-img>
         </div>
 
-        <!-- Movie Info -->
+        <div class="movie-button">
+          <!-- Movie Info -->
         <ion-label class="movie-info">
           <h2>{{ movie.title }}</h2>
           <p *ngIf="movie.year">Released: {{ movie.year }}</p>
           <p class="description">{{ getShortDescription(movie.description) }}</p>
         </ion-label>
+        </div>
+
+        <div>
+          <ion-button
+        slot="end"
+          fill="clear"
+          color="dark"
+        (click)="viewMovieDetails(movie)"
+          >View Details</ion-button>
+
+        <ion-button
+                      fill="solid"
+                      size="small"
+                      color="light"
+                      (click)="moveToWatched(movie)">
+                      <ion-icon name="checkmark-circle-outline" slot="start"></ion-icon>
+                      Mark as Watched
+                    </ion-button>
+        </div>
+
+
+
 
         <!-- Remove Button -->
         <ion-button
@@ -85,7 +107,7 @@
       <ion-icon name="search-outline"></ion-icon>
       Search
     </ion-tab-button>
-    <ion-tab-button (click)="goToWatchlist()">
+    <ion-tab-button class="active-tab" (click)="goToWatchlist()">
       <ion-icon name="list-outline"></ion-icon>
       Watchlist
     </ion-tab-button>
@@ -98,4 +120,4 @@
       Logout
     </ion-tab-button>
     </ion-tab-bar>
-  </div>
+</div>

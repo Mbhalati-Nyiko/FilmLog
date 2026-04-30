@@ -147,4 +147,28 @@ export class AppStorage {
   async clearAll(): Promise<void> {
     await this._storage?.clear();
   }
+
+  // Add this method to app-storage.ts for better error handling
+async moveFromWatchlistToWatched(movie: Movie): Promise<boolean> {
+  try {
+    // Check if movie is in watchlist first
+    const isInList = await this.isInWatchlist(movie.id);
+    if (!isInList) {
+      console.error('Movie not found in watchlist');
+      return false;
+    }
+
+    // Add to watched
+    await this.addToWatched(movie);
+
+    // Remove from watchlist
+    await this.removeFromWatchlist(movie.id);
+
+    console.log(`Movie "${movie.title}" moved successfully`);
+    return true;
+  } catch (error) {
+    console.error('Error moving movie:', error);
+    return false;
+  }
+}
 }

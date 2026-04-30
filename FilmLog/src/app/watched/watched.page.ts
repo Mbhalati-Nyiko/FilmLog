@@ -57,12 +57,13 @@ export class WatchedPage implements OnInit {
     }
   }
 
-  async removeFromWatched(movieId: string, event: Event) {
-    event.stopPropagation();
+  async removeFromWatched(movieId: string) {
+    // event.stopPropagation();
 
     try {
-      await this.appStorage.removeFromWatchlist(movieId);
+      await this.appStorage.removeFromWatched(movieId);
       await this.loadWatched();
+      this.router.navigate(['/watched']);
       console.log('Movie removed from watched');
     } catch (error) {
       console.error('Error removing from watched:', error);

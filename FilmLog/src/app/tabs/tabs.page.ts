@@ -1,13 +1,14 @@
+import { Router } from '@angular/router';
 import { Component } from '@angular/core';
 
 @Component({
   selector: 'app-tabs',
   templateUrl: 'tabs.page.html',
   styleUrls: ['tabs.page.scss'],
-  standalone: false,
+  standalone: true,
 })
 export class TabsPage {
 
-  constructor() {}
+  constructor(private router: Router) {}
 
 }

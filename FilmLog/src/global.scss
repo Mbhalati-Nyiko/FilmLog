@@ -41,3 +41,10 @@
 body, input, button {
   font-family: 'Poppins', sans-serif;
 }
+
+.content {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+}

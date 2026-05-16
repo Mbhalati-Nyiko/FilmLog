@@ -27,7 +27,7 @@ namespace FilmLog.Controllers
     [HttpGet("{id}")]
     public async Task<IActionResult> GetUserById(int id)
     {
-      var user = await _userRepo.GetUserByIdAsync(id);
+      var user = await _userRepo.GetByIdAsync(id);
       if (user == null)
       {
         return NotFound();
@@ -39,7 +39,7 @@ namespace FilmLog.Controllers
     [HttpPost]
     public async Task<IActionResult> AddUser([FromBody] User user)
     {
-      var addedUser = await _userRepo.AddUserAsync(user);
+      var addedUser = await _userRepo.CreateAsync(user);
       return CreatedAtAction(nameof(GetUserById), new { id = addedUser.Id }, addedUser);
     }
 

@@ -18,16 +18,16 @@ namespace FilmLog.Services
       };
     }
 
-    public MovieItem MapOmdbSearchToMovie(OmdbSearchItem searchItem)
-    {
-      return new MovieItem
-      {
-        Title = searchItem.Title,
-        Poster = searchItem.Poster,
-        Year = searchItem.Year,
-        Genre = null,  // Search results don't include genre
-        Cast = null     // Search results don't include cast
-      };
-    }
+    //public MovieItem MapOmdbSearchToMovie(OmdbSearchItem searchItem)
+    //{
+    //  return new MovieItem
+    //  {
+    //    Title = searchItem.Title,
+    //    Poster = searchItem.Poster,
+    //    Year = searchItem.Year,
+    //    Genre = null,  // Search results don't include genre
+    //    Cast = null     // Search results don't include cast
+    //  };
+    //}
   }
 }

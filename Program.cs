@@ -9,8 +9,13 @@ using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
+var testKey = builder.Configuration["OmdbApi:Key"];
+Console.WriteLine($"OMDb API Key loaded: {(string.IsNullOrEmpty(testKey) ? "NOT FOUND" : "Found")}");
+
+builder.Configuration.AddEnvironmentVariables();
+
 // Add authentication
-var key = Encoding.ASCII.GetBytes(builder.Configuration["JwtSettings:Secret"]);
+var key = Encoding.ASCII.GetBytes(builder.Configuration["JwtSettings:Secret"] ?? throw new InvalidOperationException("JWT Secret not configured"));
 builder.Services.AddAuthentication(options =>
 {
   options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
@@ -50,15 +55,19 @@ builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IOmdbService, OmdbService>();
 builder.Services.AddScoped<MovieMappingService>();
 
-// Add HttpClient for OMDb API
-builder.Services.AddHttpClient<IOmdbService, OmdbService>();
+// Configure HttpClient for OMDb with timeout and retry
+builder.Services.AddHttpClient<IOmdbService, OmdbService>(client =>
+{
+  client.Timeout = TimeSpan.FromSeconds(30);
+  client.DefaultRequestHeaders.Add("Accept", "application/json");
+});
 
 // Add CORS for frontend
 builder.Services.AddCors(options =>
 {
   options.AddPolicy("AllowFrontend", policy =>
   {
-    policy.WithOrigins("http://localhost:3000", "http://localhost:3001")
+    policy.WithOrigins("http://localhost:8100", "http://localhost:8101", "http://localhost:4200")
           .AllowAnyHeader()
           .AllowAnyMethod()
           .AllowCredentials();
@@ -70,6 +79,8 @@ builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
 
+app.UseCors("AllowFrontend");
+
 // Configure pipeline
 if (app.Environment.IsDevelopment())
 {
@@ -77,46 +88,44 @@ if (app.Environment.IsDevelopment())
   app.UseSwaggerUI();
 }
 
-using (var scope = app.Services.CreateScope())
-{
-  var context = scope.ServiceProvider.GetRequiredService<FilmLogDbContext>();
-
-  if (!context.Users.Any())
-  {
-    var hashedAdmin = BCrypt.Net.BCrypt.HashPassword("admin123");
-    var hashedGuest = BCrypt.Net.BCrypt.HashPassword("guest123");
-
-    context.Users.AddRange(
-        new User
-        {
-          Username = "admin",
-          Email = "admin@example.com",
-          PasswordHash = hashedAdmin,
-          CreatedAt = DateTime.UtcNow
-        },
-        new User
-        {
-          Username = "guest",
-          Email = "guest@example.com",
-          PasswordHash = hashedGuest,
-          CreatedAt = DateTime.UtcNow
-        }
-    );
-    await context.SaveChangesAsync();
-  }
-}
-
 app.UseHttpsRedirection();
-app.UseCors("AllowFrontend");
 app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();
 
-// Ensure database is created and migrations applied
-using (var scope = app.Services.CreateScope())
-{
-  var dbContext = scope.ServiceProvider.GetRequiredService<FilmLogDbContext>();
-  dbContext.Database.EnsureCreated();
-}
+// Ensure database is created and seed data added
+//using (var scope = app.Services.CreateScope())
+//{
+//  var dbContext = scope.ServiceProvider.GetRequiredService<FilmLogDbContext>();
+//  dbContext.Database.EnsureCreated();
+
+//  // Seed users if none exist
+//  if (!dbContext.Users.Any())
+//  {
+//    var hashedAdmin = BCrypt.Net.BCrypt.HashPassword("admin123");
+//    var hashedGuest = BCrypt.Net.BCrypt.HashPassword("guest123");
+
+//    dbContext.Users.AddRange(
+//        new User
+//        {
+//          Username = "admin",
+//          Email = "admin@example.com",
+//          PasswordHash = hashedAdmin,
+//          CreatedAt = DateTime.UtcNow
+//        },
+//        new User
+//        {
+//          Username = "guest",
+//          Email = "guest@example.com",
+//          PasswordHash = hashedGuest,
+//          CreatedAt = DateTime.UtcNow
+//        }
+//    );
+//    dbContext.SaveChanges();
+
+//    var logger = scope.ServiceProvider.GetRequiredService<ILogger<Program>>();
+//    logger.LogInformation("Database seeded with default users");
+//  }
+//}
 
 app.Run();

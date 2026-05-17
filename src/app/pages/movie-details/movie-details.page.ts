@@ -1,39 +1,10 @@
+// src/app/pages/movie-details/movie-details.page.ts
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
-import {
-  IonHeader, IonToolbar, IonTitle, IonContent,
-  IonButton, IonIcon, IonButtons, IonBackButton,
-  IonChip, IonLabel, IonToast, IonImg
-} from '@ionic/angular/standalone';
-import { addIcons } from 'ionicons';
-import {
-  bookmarkOutline,
-  bookmark,
-  checkmarkCircleOutline,
-  checkmarkCircle,
-  starOutline,
-  star,
-  timeOutline,
-  calendarOutline,
-  peopleOutline
-} from 'ionicons/icons';
 import { AppStorage } from 'src/app/service/app-storage';
-import { AuthenticationService } from 'src/app/service/authentication-service'
-
-export interface Movie {
-  id: string;
-  title: string;
-  year: string;
-  image: string;
-  description: string;
-  rating?: string;
-  runtime?: string;
-  genre?: string[];
-  director?: string;
-  cast?: string[];
-}
+import { AuthenticationService } from 'src/app/service/authentication-service';
+import { Movie } from 'src/app/models/movieModel';
+import { ToastController } from '@ionic/angular';
 
 @Component({
   selector: 'app-movie-details',
@@ -45,114 +16,53 @@ export class MovieDetailsPage implements OnInit {
   movie: Movie | null = null;
   isWatched: boolean = false;
   isInWatchlist: boolean = false;
-  showToast: boolean = false;
-  toastMessage: string = '';
-  toastColor: string = 'success';
   isLoggedIn: boolean = false;
 
   constructor(
     private route: ActivatedRoute,
     private router: Router,
     private appStorage: AppStorage,
-    private authService : AuthenticationService
-  ) {
-    addIcons({
-      bookmarkOutline,
-      bookmark,
-      checkmarkCircleOutline,
-      checkmarkCircle,
-      starOutline,
-      star,
-      timeOutline,
-      calendarOutline,
-      peopleOutline
-    });
-  }
-
-  goToSearch(){
-    this.router.navigate(['/search']);
-    return;
-  }
-
-  goToWatchlist(){
-    this.router.navigate(['/watchlist']);
-    return;
-  }
-
-  goToWatched(){
-    this.router.navigate(['/watched']);
-    return;
-  }
-
-  logOut(){
-    this.authService.logout();
-    this.router.navigate(['/login']);
-  }
+    private authService: AuthenticationService,
+    private toastController: ToastController
+  ) {}
 
   async ngOnInit() {
-
-    // Check if user is logged in
     this.isLoggedIn = this.authService.isAuthenticated();
-
     if (!this.isLoggedIn) {
       this.router.navigate(['/login']);
       return;
     }
 
-    // Rest of your existing ngOnInit code...
     const navigation = this.router.getCurrentNavigation();
     const state = navigation?.extras.state as { movie: Movie };
 
     if (state?.movie) {
       this.movie = state.movie;
-      console.log('Movie loaded:', this.movie);
+      await this.checkUserStatus();
     } else {
       const movieId = this.route.snapshot.paramMap.get('id');
       if (movieId) {
         await this.loadMovieDetails(movieId);
       }
     }
-
-    if (this.movie) {
-      await this.checkUserStatus();
-    }
   }
 
   async loadMovieDetails(movieId: string) {
-    this.movie = {
-      id: movieId,
-      title: 'Movie Details',
-      year: 'N/A',
-      image: 'https://via.placeholder.com/400x600',
-      description: 'Loading movie details...',
-      rating: 'N/A',
-      runtime: 'N/A',
-      genre: [],
-      director: 'Unknown',
-      cast: []
-    };
+    // Fetch from OMDb via your backend
+    // This would call your MoviesController
   }
 
-  // Safe description getter with fallback
   getSafeDescription(description: string | undefined): string {
-    if (!description) {
-      return 'No synopsis available for this movie.';
-    }
-
-    if (typeof description !== 'string') {
-      return 'No synopsis available for this movie.';
-    }
-
+    if (!description) return 'No synopsis available for this movie.';
     const trimmed = description.trim();
     return trimmed || 'No synopsis available for this movie.';
   }
 
   async checkUserStatus() {
-    if (!this.movie) return;
-
+    if (!this.movie?.imdbID) return;
     try {
-      this.isWatched = await this.appStorage.isMovieWatched(this.movie.id);
-      this.isInWatchlist = await this.appStorage.isInWatchlist(this.movie.id);
+      this.isWatched = await this.appStorage.isMovieWatched(this.movie.imdbID);
+      this.isInWatchlist = await this.appStorage.isInWatchlist(this.movie.imdbID);
     } catch (error) {
       console.error('Error checking user status:', error);
     }
@@ -160,48 +70,62 @@ export class MovieDetailsPage implements OnInit {
 
   async toggleWatched() {
     if (!this.movie) return;
-
     try {
       if (this.isWatched) {
-        await this.appStorage.removeFromWatched(this.movie.id);
+        // Need to get the database ID first
+        const watchedMovies = await this.appStorage.getWatchedMovies();
+        const watchedMovie = watchedMovies.find(m => m.imdbID === this.movie?.imdbID);
+        if (watchedMovie?.watchedItemId) {
+          await this.appStorage.removeFromWatched(watchedMovie.watchedItemId);
+        }
         this.isWatched = false;
-        this.showToastMessage('Removed from watched', 'secondary');
+        this.showToast('Removed from watched', 'secondary');
       } else {
         await this.appStorage.addToWatched(this.movie);
         this.isWatched = true;
-        this.showToastMessage('Marked as watched!', 'success');
+        this.showToast('Marked as watched!', 'success');
       }
     } catch (error) {
       console.error('Error toggling watched:', error);
-      this.showToastMessage('An error occurred', 'danger');
+      this.showToast('An error occurred', 'danger');
     }
   }
 
   async toggleWatchlist() {
     if (!this.movie) return;
-
     try {
       if (this.isInWatchlist) {
-        await this.appStorage.removeFromWatchlist(this.movie.id);
+        const watchlist = await this.appStorage.getWatchlist();
+        const watchlistMovie = watchlist.find(m => m.imdbID === this.movie?.imdbID);
+        if (watchlistMovie?.watchlistItemId) {
+          await this.appStorage.removeFromWatchlist(watchlistMovie.watchlistItemId);
+        }
         this.isInWatchlist = false;
-        this.showToastMessage('Removed from watchlist', 'secondary');
+        this.showToast('Removed from watchlist', 'secondary');
       } else {
         await this.appStorage.addToWatchlist(this.movie);
         this.isInWatchlist = true;
-        this.showToastMessage('Added to watchlist!', 'success');
+        this.showToast('Added to watchlist!', 'success');
       }
     } catch (error) {
       console.error('Error toggling watchlist:', error);
-      this.showToastMessage('An error occurred', 'danger');
+      this.showToast('An error occurred', 'danger');
     }
   }
 
-  showToastMessage(message: string, color: string = 'success') {
-    this.toastMessage = message;
-    this.toastColor = color;
-    this.showToast = true;
-    setTimeout(() => {
-      this.showToast = false;
-    }, 2000);
+  async showToast(message: string, color: string = 'success') {
+
+    const toast = await this.toastController.create({
+      message,
+      duration: 2000,
+      color,
+      position: 'bottom'
+    });
+    await toast.present();
   }
+
+  goToSearch() { this.router.navigate(['/search']); }
+  goToWatchlist() { this.router.navigate(['/watchlist']); }
+  goToWatched() { this.router.navigate(['/watched']); }
+  logOut() { this.authService.logout(); this.router.navigate(['/login']); }
 }

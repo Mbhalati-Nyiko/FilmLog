@@ -1,106 +1,131 @@
-import { User } from './../models/userModel';
 // authentication-service.ts
 import { Injectable } from '@angular/core';
-import { LogInModel, SignUpModel } from '../pages/login/login.page';
+import { HttpClient } from '@angular/common/http';
+import { Router } from '@angular/router';
+import { BehaviorSubject, Observable, throwError } from 'rxjs';
+import { catchError, map, tap } from 'rxjs/operators';
+
+export interface LoginRequest {
+  username: string;  // Changed from 'name' to match backend
+  password: string;
+}
+
+export interface RegisterRequest {
+  username: string;  // Changed from 'name' to match backend
+  email: string;
+  password: string;
+}
+
+export interface AuthResponse {
+  token: string;
+  userId: number;
+  username: string;  // Changed from 'name' to match backend
+}
+
+export interface User {
+  id: number;
+  username: string;
+  email: string;
+}
 
 @Injectable({
   providedIn: 'root'
 })
 export class AuthenticationService {
-  private userKey: string = 'users';
-  private currentUserKey: string = 'logged-in-user';
+  private apiUrl = 'http://localhost:5165/api';
+  private tokenKey = 'jwt_token';
+  private userKey = 'user_info';
+  private isAuthenticatedSubject = new BehaviorSubject<boolean>(false);
 
-  constructor() {}
+  constructor(
+    private http: HttpClient,
+    private router: Router
+  ) {
+    this.checkInitialAuth();
+  }
 
-  // Register new user
-  onRegister(signUpObj: SignUpModel): boolean {
-    // Validate input
-    if (!signUpObj.username || !signUpObj.password || !signUpObj.email) {
-      console.error('All fields are required');
+  private checkInitialAuth() {
+    const token = localStorage.getItem(this.tokenKey);
+    if (token && this.isTokenValid(token)) {
+      this.isAuthenticatedSubject.next(true);
+    } else if (token) {
+      this.logout(); // Clear invalid token
+    }
+  }
+
+  private isTokenValid(token: string): boolean {
+    try {
+      const payload = JSON.parse(atob(token.split('.')[1]));
+      return payload.exp > Date.now() / 1000;
+    } catch {
       return false;
     }
+  }
 
-    const localUser = localStorage.getItem(this.userKey);
-    let users = [];
-
-    if (localUser !== null) {
-      users = JSON.parse(localUser);
-
-      // Check if user already exists
-      const userExists = users.some((user: SignUpModel) =>
-        user.username === signUpObj.username || user.email === signUpObj.email
+  onRegister(registerData: RegisterRequest): Observable<AuthResponse> {
+    return this.http.post<AuthResponse>(`${this.apiUrl}/auth/register`, registerData)
+      .pipe(
+        tap(response => {
+          this.storeAuthData(response);
+          this.isAuthenticatedSubject.next(true);
+        }),
+        catchError(error => {
+          console.error('Registration error:', error);
+          const errorMessage = error.error?.title || error.error || 'Registration failed';
+          return throwError(() => new Error(errorMessage));
+        })
       );
-
-      if (userExists) {
-        console.error('User already exists');
-        return false;
-      }
-    }
-
-    // Create new user (don't store sensitive data in plain text in production)
-    const newUser = {
-      username: signUpObj.username,
-      email: signUpObj.email,
-      password: signUpObj.password // In production, hash this!
-    };
-
-    users.push(newUser);
-    localStorage.setItem(this.userKey, JSON.stringify(users));
-    console.log('User registered successfully');
-    return true;
   }
 
-  // Login user
-  login(logInObj: LogInModel): boolean {
-    if (!logInObj.username || !logInObj.password) {
-      console.error('Username and password required');
-      return false;
-    }
-
-    const localUser = localStorage.getItem(this.userKey);
-
-    if (localUser === null) {
-      console.error('No users found');
-      return false;
-    }
-
-    const users = JSON.parse(localUser);
-    const user = users.find((u: any) =>
-      u.username === logInObj.username && u.password === logInObj.password
-    );
-
-    if (user) {
-      // Store only necessary user info, exclude password
-      const { password, ...safeUser } = user;
-      localStorage.setItem(this.currentUserKey, JSON.stringify(safeUser));
-      console.log('Login successful');
-      return true;
-    }
-
-    console.error('Invalid credentials');
-    return false;
+  login(loginData: LoginRequest): Observable<AuthResponse> {
+    return this.http.post<AuthResponse>(`${this.apiUrl}/auth/login`, loginData)
+      .pipe(
+        tap(response => {
+          this.storeAuthData(response);
+          this.isAuthenticatedSubject.next(true);
+        }),
+        catchError(error => {
+          console.error('Login error:', error);
+          const errorMessage = error.error?.title || error.error || 'Invalid username or password';
+          return throwError(() => new Error(errorMessage));
+        })
+      );
   }
 
-  // Check if user is authenticated
+  private storeAuthData(authResponse: AuthResponse) {
+    localStorage.setItem(this.tokenKey, authResponse.token);
+    localStorage.setItem(this.userKey, JSON.stringify({
+      id: authResponse.userId,
+      username: authResponse.username
+    }));
+  }
+
+  getToken(): string | null {
+    return localStorage.getItem(this.tokenKey);
+  }
+
   isAuthenticated(): boolean {
-    return !!localStorage.getItem(this.currentUserKey);
+    const token = this.getToken();
+    return !!token && this.isTokenValid(token);
   }
 
-  // Get current user info
-  getCurrentUser(): any {
-    const user = localStorage.getItem(this.currentUserKey);
+  getAuthStatus(): Observable<boolean> {
+    return this.isAuthenticatedSubject.asObservable();
+  }
+
+  getCurrentUser(): User | null {
+    const user = localStorage.getItem(this.userKey);
     return user ? JSON.parse(user) : null;
   }
 
-  // Logout user
-  logout(): void {
-    localStorage.removeItem(this.currentUserKey);
-    console.log('Logged out successfully');
+  getUserId(): number | null {
+    return this.getCurrentUser()?.id || null;
   }
 
-  // Get all users (for debugging only, remove in production)
-  getAllUsers(): any[] {
-    const users = localStorage.getItem(this.userKey);
-    return users ? JSON.parse(users) : [];
+  logout(): void {
+    localStorage.removeItem(this.tokenKey);
+    localStorage.removeItem(this.userKey);
+    this.isAuthenticatedSubject.next(false);
+    this.router.navigate(['/login']);
   }
 }

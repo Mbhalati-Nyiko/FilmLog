@@ -1,156 +1,108 @@
 <ion-header [translucent]="true">
-  <ion-toolbar>
-    <ion-title size="large">Search Movies</ion-title>
-  </ion-toolbar>
+<ion-toolbar>
+<ion-title size="large">Search Movies</ion-title>
+<ion-progress-bar *ngIf="isLoading" type="indeterminate"></ion-progress-bar>
+</ion-toolbar>
 </ion-header>
 
 <ion-content [fullscreen]="false">
-  <ion-header collapse="condense">
-  <ion-toolbar>
-    <!-- Title on the left -->
-    <ion-title size="large">Search</ion-title>
-
-    <!-- Button on the right -->
-    <!-- <ion-buttons slot="end" >
-      <ion-button size="large" fill="solid">
-        Logout
-        <ion-icon slot="icon-only" name="log-in-outline" md="settings-sharp"></ion-icon>
-      </ion-button>
-    </ion-buttons> -->
-    <ion-progress-bar *ngIf="isLoading" type="indeterminate"></ion-progress-bar>
-  </ion-toolbar>
+<ion-header collapse="condense">
+<ion-toolbar>
+<ion-title size="large">Search</ion-title>
+</ion-toolbar>
 </ion-header>
 
+<div class="search-container">
+<div class="search-box">
+<ion-searchbar color="dark"
+animated="true"
+placeholder="Search for movies..."
+[(ngModel)]="searchQuery"
+name="searchQuery"
+(ionClear)="clearSearch()">
+</ion-searchbar>
+<ion-button class="search-btn" (click)="onSearch()">Search</ion-button>
+</div>
 
+<!-- (ionInput)="onSearch()" -->
 
+<!-- Loading Spinner -->
+<div *ngIf="isLoading && searchResults.length === 0" class="loading-container">
+<!-- <ion-spinner name="crescent"></ion-spinner> -->
+<app-loader></app-loader>
+<p>Searching for movies...</p>
+</div>
 
+<!-- Error Message -->
+<ion-text *ngIf="errorMessage && !isLoading" color="danger">
+<p class="error-message">{{ errorMessage }}</p>
+</ion-text>
 
-  <div class="search-container">
+<!-- Search Results -->
+<div *ngIf="!isLoading && searchResults.length > 0" class="search-results">
+<ion-grid class="results-grid">
+<ion-row>
+<ion-col size="6" *ngFor="let result of searchResults">
+<ion-card class="result-card" (click)="viewMovieDetails(result)">
+<div class="poster-container">
+<ion-img [src]="result.image"
+[alt]="result.title"
+(ionError)="result.image = 'assets/default-poster.jpg'">
+</ion-img>
+</div>
+<ion-card-header>
+<ion-card-title class="movie-title">{{ result.title }}</ion-card-title>
+<ion-card-subtitle>{{ result.year }}</ion-card-subtitle>
+<p>{{result.cast}}</p>
+</ion-card-header>
+</ion-card>
+</ion-col>
+</ion-row>
+</ion-grid>
 
-    <div class="search-box">
-      <form (ngSubmit)="onSearch()">
-        <!-- <ion-item> -->
-          <ion-searchbar
-          color="dark"
-            animated="true"
-            placeholder="Search for movies, TV shows..."
-            [(ngModel)]="searchQuery"
-            name="searchQuery"
-            (ionClear)="clearSearch()">
-          </ion-searchbar>
-        <!-- </ion-item> -->
-        <!-- <ion-button
-          expand="block"
-          color="dark"
-          (click)="onSearch()"
-          [disabled]="isLoading || !searchQuery.trim()">
-          {{ isLoading ? 'Searching...' : 'Search' }}
-        </ion-button> -->
+<!-- Infinite Scroll -->
+<ion-infinite-scroll *ngIf="hasMoreResults"
+threshold="100px"
+(ionInfinite)="loadMoreResults($event)">
+<ion-infinite-scroll-content loadingSpinner="bubbles"
+loadingText="Loading more movies...">
+</ion-infinite-scroll-content>
+</ion-infinite-scroll>
+</div>
 
-      </form>
+<!-- No Results Message -->
+<div *ngIf="!isLoading && !errorMessage && searchResults.length === 0 && searchQuery"
+class="no-results">
+<ion-icon name="film-outline" class="no-results-icon"></ion-icon>
+<ion-text color="medium">
+<p>No results found for "{{ searchQuery }}"</p>
+</ion-text>
+</div>
 
-      <button type="submit" class="search-btn"
-        (click)="onSearch()"
-          [disabled]="isLoading || !searchQuery.trim()">
-          {{ isLoading ? 'Searching...' : 'Search' }}
-      </button>
-
-    </div>
-
-    <!-- Loading Spinner -->
-    <div *ngIf="isLoading" class="loading-container">
-      <!-- <ion-spinner name="crescent"></ion-spinner>
-      <p>Searching for movies...</p> -->
-      <app-loader></app-loader>
-    </div>
-
-    <!-- Error Message -->
-    <ion-text *ngIf="errorMessage && !isLoading" color="danger">
-      <p class="error-message">{{ errorMessage }}</p>
-    </ion-text>
-
-    <!-- Search Results - Grid Layout (2 columns) -->
-    <div *ngIf="!isLoading && searchResults.length > 0" class="search-results">
-      <ion-grid class="results-grid">
-
-        <ion-row>
-          <ion-col size="6" *ngFor="let result of searchResults">
-            <ion-card class="result-card">
-
-              <div class="card-content">
-
-                <div class="poster-container">
-                  <ion-img
-                    [src]="result.image"
-                    [alt]="result.title"
-                    (ionError)="result.image = 'assets/default-poster.jpg'">
-                  </ion-img>
-                </div>
-
-                <div class="movie-info">
-
-                  <ion-card-header>
-                    <ion-card-title>{{ result.title }}</ion-card-title>
-                    <ion-card-subtitle>Year: {{ result.year }}</ion-card-subtitle>
-                  </ion-card-header>
-
-                  <ion-card-content>
-
-                    <!-- Safe description with length check -->
-                    <p>{{ getShortDescription(result.description) }}</p>
-
-
-                    <ion-button
-                      fill="clear"
-                      size="small"
-                      (click)="viewMovieDetails(result)">
-                      View Details
-                    </ion-button>
-
-                  </ion-card-content>
-
-                </div>
-              </div>
-            </ion-card>
-          </ion-col>
-        </ion-row>
-      </ion-grid>
-    </div>
-
-    <!-- No Results Message -->
-    <div *ngIf="!isLoading && !errorMessage && searchResults.length === 0 && searchQuery"
-         class="no-results">
-      <ion-text color="medium">
-        <p>No results found for "{{ searchQuery }}"</p>
-      </ion-text>
-    </div>
-
-
-
-
-  </div>
+<!-- Initial State -->
+<div *ngIf="!isLoading && !errorMessage && searchResults.length === 0 && !searchQuery"
+class="initial-state">
+</div>
+</div>
 </ion-content>
 
 <div class="tabs-group">
-      <ion-tab-bar slot="bottom">
-    <ion-tab-button class="active-tab" (click)="goToSearch()">
-      <ion-icon name="search-outline"></ion-icon>
-      Search
-    </ion-tab-button>
-    <ion-tab-button (click)="goToWatchlist()">
-      <ion-icon name="list-outline"></ion-icon>
-      Watchlist
-    </ion-tab-button>
-    <ion-tab-button (click)="goToWatched()">
-      <ion-icon name="checkmark-circle-outline"></ion-icon>
-      Watched
-    </ion-tab-button>
-    <ion-tab-button (click)="logOut()">
-      <ion-icon name="log-out-outline"></ion-icon>
-      Logout
-    </ion-tab-button>
-    </ion-tab-bar>
+<ion-tab-bar slot="bottom">
+<ion-tab-button class="active-tab" (click)="goToSearch()">
+<ion-icon name="search-outline"></ion-icon>
+Search
+</ion-tab-button>
+<ion-tab-button (click)="goToWatchlist()">
+<ion-icon name="list-outline"></ion-icon>
+Watchlist
+</ion-tab-button>
+<ion-tab-button (click)="goToWatched()">
+<ion-icon name="checkmark-circle-outline"></ion-icon>
+Watched
+</ion-tab-button>
+<ion-tab-button (click)="logOut()">
+<ion-icon name="log-out-outline"></ion-icon>
+Logout
+</ion-tab-button>
+</ion-tab-bar>
 </div>
-
-
-

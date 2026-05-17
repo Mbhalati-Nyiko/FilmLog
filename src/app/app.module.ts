@@ -1,31 +1,29 @@
 import { NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
 import { RouteReuseStrategy } from '@angular/router';
-import { FormsModule} from '@angular/forms';
-
 import { IonicModule, IonicRouteStrategy } from '@ionic/angular';
-import { HttpClient, HttpClientModule } from '@angular/common/http';
+import { HTTP_INTERCEPTORS, HttpClientModule } from '@angular/common/http';
 
-import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
-
-import { IonicStorageModule } from '@ionic/storage-angular';
-import { Drivers } from '@ionic/storage';
-import * as CordovaSQLiteDriver from 'localforage-cordovasqlitedriver'
-
+import { AppRoutingModule } from './app-routing.module';
+import { AuthInterceptor } from './service/auth-interceptor';
 
 @NgModule({
   declarations: [AppComponent],
-  imports: [BrowserModule,
+  imports: [
+    BrowserModule,
     IonicModule.forRoot(),
     AppRoutingModule,
-    FormsModule,
-    HttpClientModule,
-    IonicStorageModule.forRoot({
-      name: "FilmLogDB",
-      driverOrder: [ Drivers.IndexedDB, Drivers.LocalStorage]
-    })],
-  providers: [{ provide: RouteReuseStrategy, useClass: IonicRouteStrategy }],
+    HttpClientModule  // Make sure this is imported
+  ],
+  providers: [
+    { provide: RouteReuseStrategy, useClass: IonicRouteStrategy },
+    {
+      provide: HTTP_INTERCEPTORS,
+      useClass: AuthInterceptor,
+      multi: true  // This allows multiple interceptors
+    }
+  ],
   bootstrap: [AppComponent],
 })
 export class AppModule {}

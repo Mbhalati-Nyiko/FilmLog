@@ -15,12 +15,18 @@ namespace FilmLog.Controllers
     private readonly IOmdbService _omdbService;
     private readonly MovieMappingService _mapper;
     private readonly IWatchlistRepo _watchlistRepo;
+    private readonly ILogger<MoviesController> _logger;
 
-    public MoviesController(IOmdbService omdbService, MovieMappingService mapper, IWatchlistRepo watchlistRepo)
+    public MoviesController(
+      IOmdbService omdbService,
+      MovieMappingService mapper,
+      IWatchlistRepo watchlistRepo,
+      ILogger<MoviesController> logger)
     {
       _omdbService = omdbService;
       _mapper = mapper;
       _watchlistRepo = watchlistRepo;
+      _logger = logger;
     }
 
     [HttpGet("search")]
@@ -29,10 +35,18 @@ namespace FilmLog.Controllers
       if (string.IsNullOrWhiteSpace(title))
         return BadRequest("Title is required");
 
+      _logger.LogInformation("Searching for movies with title: {Title}, page: {Page}", title, page);
+
       var result = await _omdbService.SearchMoviesAsync(title, page);
 
-      if (result?.Response == "False")
+      if (result == null)
+        return StatusCode(500, "Failed to search movies. Please try again later.");
+
+      if (result.Response == "False")
+      {
+        _logger.LogWarning("OMDb search returned error: {Error}", result.Error);
         return NotFound(result.Error ?? "No movies found");
+      }
 
       return Ok(result);
     }
@@ -40,10 +54,18 @@ namespace FilmLog.Controllers
     [HttpGet("{imdbId}")]
     public async Task<ActionResult<OmdbMovieDetail>> GetDetails(string imdbId)
     {
+      _logger.LogInformation("Getting details for movie ID: {ImdbId}", imdbId);
+
       var result = await _omdbService.GetMovieDetailsAsync(imdbId);
 
-      if (result?.Response == "False")
+      if (result == null)
+        return StatusCode(500, "Failed to get movie details. Please try again later.");
+
+      if (result.Response == "False")
+      {
+        _logger.LogWarning("OMDb details returned error: {Error}", result.Error);
         return NotFound(result.Error ?? "Movie not found");
+      }
 
       return Ok(result);
     }
@@ -52,6 +74,7 @@ namespace FilmLog.Controllers
     public async Task<IActionResult> AddToWatchlist(string imdbId)
     {
       var userId = GetCurrentUserId();
+      _logger.LogInformation("Adding movie {ImdbId} to watchlist for user {UserId}", imdbId, userId);
 
       // Check if already in watchlist
       if (await _watchlistRepo.ExistsAsync(userId, imdbId))
@@ -93,6 +116,7 @@ namespace FilmLog.Controllers
         return Unauthorized();
 
       await _watchlistRepo.DeleteAsync(id);
+      _logger.LogInformation("Removed watchlist item {Id} for user {UserId}", id, userId);
       return Ok(new { message = "Movie removed from watchlist" });
     }
 
@@ -101,5 +125,26 @@ namespace FilmLog.Controllers
       var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier);
       return int.Parse(userIdClaim?.Value ?? "0");
     }
+
+    // Add to MovieController.cs for testing
+    //[HttpGet("test-omdb")]
+    //[AllowAnonymous] // Remove authorization for testing
+    //public async Task<IActionResult> TestOmdbConnection()
+    //{
+    //  try
+    //  {
+    //    var result = await _omdbService.SearchMoviesAsync("Inception", 1);
+    //    return Ok(new
+    //    {
+    //      success = result?.Response == "True",
+    //      response = result,
+    //      apiKeyConfigured = !string.IsNullOrEmpty(_apiKey) // You'd need to expose this
+    //    });
+    //  }
+    //  catch (Exception ex)
+    //  {
+    //    return StatusCode(500, new { error = ex.Message, stackTrace = ex.StackTrace });
+    //  }
+    //}
   }
 }

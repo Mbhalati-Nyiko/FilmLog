@@ -37,7 +37,11 @@ const routes: Routes = [
   {
     path: 'watched', loadChildren: () => import('./watched/watched.module').then(m => m.WatchedPageModule),
     canActivate: [AuthGuard]
+  },  {
+    path: 'statistics',
+    loadChildren: () => import('./pages/statistics/statistics.module').then( m => m.StatisticsPageModule)
   }
+
 ];
 @NgModule({
   imports: [

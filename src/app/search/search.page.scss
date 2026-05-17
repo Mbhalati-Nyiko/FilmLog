@@ -133,7 +133,7 @@ ion-content {
 
 .search-btn{
   display: inline-block;
-  width: 90%;
+  width: 96%;
   height: 42px;
   // background-color: #151111;
   background-color: #8371fd;
@@ -144,7 +144,7 @@ ion-content {
   border-radius: 0.8rem;
   font-size: 0.8rem;
   margin-bottom: 2rem;
-  margin-left: 20px;
+  margin-left: 8px;
 }
 
 form{
@@ -155,6 +155,10 @@ form{
   flex-direction: column;
   justify-content: space-evenly;
   padding-bottom: 20px;
+}
+
+ion-button{
+  --background: #8371fd;
 }
 
 ion-item{

@@ -1,8 +1,9 @@
-import { AppStorage } from 'src/app/service/app-storage';
 import { Component, OnInit } from '@angular/core';
-import { Router } from '@angular/router';
+import { AppStorage } from '../service/app-storage';
 import { AuthenticationService } from '../service/authentication-service';
-import { Movie, MovieData } from '../service/movie-data';
+import { Movie } from 'src/app/models/movieModel';
+import { Router } from '@angular/router';
+import { AlertController, ToastController } from '@ionic/angular';
 
 @Component({
   selector: 'app-watched',
@@ -11,27 +12,25 @@ import { Movie, MovieData } from '../service/movie-data';
   standalone: false,
 })
 export class WatchedPage implements OnInit {
-
   watched: Movie[] = [];
-  isLoading : boolean = false;
-  isLoggedIn : boolean = false;
+  isLoading: boolean = false;
+  isLoggedIn: boolean = false;
 
   constructor(
     private router: Router,
-    private authService : AuthenticationService,
-    private movieData : MovieData,
-    private appStorage : AppStorage
+    private authService: AuthenticationService,
+    private appStorage: AppStorage,
+    private alertController: AlertController,
+    private toastController: ToastController
   ) {}
 
   async ngOnInit() {
-    this.checkAuth;
+    this.checkAuth();
   }
 
   checkAuth() {
     this.isLoggedIn = this.authService.isAuthenticated();
-
     if (!this.isLoggedIn) {
-      // Redirect to login if not authenticated
       this.router.navigate(['/login']);
     }
   }
@@ -45,84 +44,91 @@ export class WatchedPage implements OnInit {
 
   async loadWatched() {
     if (!this.isLoggedIn) return;
-
     this.isLoading = true;
     try {
       this.watched = await this.appStorage.getWatchedMovies();
-      console.log('Watched loaded for user:', this.authService.getCurrentUser()?.username, this.watched.length, 'items');
+      console.log('Watched loaded:', this.watched.length, 'items');
     } catch (error) {
       console.error('Error loading watched:', error);
+      this.showToast('Failed to load watched movies', 'danger');
     } finally {
       this.isLoading = false;
     }
   }
 
-  async removeFromWatched(movieId: string) {
-    // event.stopPropagation();
+  async removeFromWatched(movie: Movie, event?: Event) {
+    if (event) event.stopPropagation();
 
-    try {
-      await this.appStorage.removeFromWatched(movieId);
-      await this.loadWatched();
-      this.router.navigate(['/watched']);
-      console.log('Movie removed from watched');
-    } catch (error) {
-      console.error('Error removing from watched:', error);
-    }
+    const alert = await this.alertController.create({
+      header: 'Remove Movie',
+      message: `Remove "${movie.title}" from your watched list?`,
+      buttons: [
+        { text: 'Cancel', role: 'cancel' },
+        { text: 'Remove', handler: async () => {
+            if (movie.watchedItemId) {
+              await this.appStorage.removeFromWatched(movie.watchedItemId);
+              await this.loadWatched();
+              this.showToast('Movie removed from watched', 'success');
+            }
+          }
+        }
+      ]
+    });
+    await alert.present();
   }
 
   async clearAllWatched() {
-    const confirmed = confirm('Are you sure you want to clear all your watched movies?');
-
-    if (confirmed) {
-      try {
-        for (const movie of this.watched) {
-          await this.appStorage.removeFromWatched(movie.id);
+    const alert = await this.alertController.create({
+      header: 'Clear Watched',
+      message: 'Are you sure you want to clear all your watched movies?',
+      buttons: [
+        { text: 'Cancel', role: 'cancel' },
+        { text: 'Clear All', handler: async () => {
+            this.isLoading = true;
+            try {
+              for (const movie of this.watched) {
+                if (movie.watchedItemId) {
+                  await this.appStorage.removeFromWatched(movie.watchedItemId);
+                }
+              }
+              await this.loadWatched();
+              this.showToast('Watched history cleared', 'success');
+            } catch (error) {
+              console.error('Error clearing watched:', error);
+              this.showToast('Failed to clear watched history', 'danger');
+            } finally {
+              this.isLoading = false;
+            }
+          }
         }
-        await this.loadWatched();
-        console.log('Watched cleared');
-      } catch (error) {
-        console.error('Error clearing watched:', error);
-      }
-    }
+      ]
+    });
+    await alert.present();
   }
 
-  getShortDescription(description: string | undefined): string {
-    if (!description) {
-      return 'No description available';
-    }
-
+  getShortDescription(cast: string | string[] | undefined): string {
+    if (!cast) return 'No cast information available';
+    let castString = Array.isArray(cast) ? cast.join(', ') : cast;
     const maxLength = 80;
-    if (description.length <= maxLength) {
-      return description;
-    }
-
-    return description.substring(0, maxLength) + '...';
+    return castString.length <= maxLength ? castString : castString.substring(0, maxLength) + '...';
   }
 
   viewMovieDetails(movie: Movie) {
-      this.router.navigate(['/movie-details'], {
-        state: { movie: movie }
-      });
-    }
-
-  goToSearch(){
-    this.router.navigate(['/search']);
-    return;
+    this.router.navigate(['/movie-details'], { state: { movie: movie } });
   }
 
-  goToWatchlist(){
-    this.router.navigate(['/watchlist']);
-    return;
-  }
+  goToSearch() { this.router.navigate(['/search']); }
+  goToWatchlist() { this.router.navigate(['/watchlist']); }
+  goToWatched() { this.router.navigate(['/watched']); }
+  logOut() { this.authService.logout(); this.router.navigate(['/login']); }
 
-  goToWatched(){
-    this.router.navigate(['/watched']);
-    return;
+  private async showToast(message: string, color: string = 'success') {
+    const toast = await this.toastController.create({
+      message,
+      duration: 2000,
+      color,
+      position: 'bottom'
+    });
+    await toast.present();
   }
-
-  logOut(){
-    this.authService.logout();
-    this.router.navigate(['/login']);
-  }
-
 }

@@ -1,110 +1,112 @@
 <ion-header [translucent]="true">
-  <ion-toolbar>
-    <ion-title>
-      Watched
-    </ion-title>
-  </ion-toolbar>
+<ion-toolbar>
+<ion-title>
+Watched
+</ion-title>
+</ion-toolbar>
 </ion-header>
 
 <ion-content [fullscreen]="false">
-  <ion-header collapse="condense">
-    <ion-toolbar>
-      <ion-title size="large">Watched</ion-title>
-    </ion-toolbar>
-  </ion-header>
+<ion-header collapse="condense">
+<ion-toolbar>
+<ion-title size="large">Watched</ion-title>
+</ion-toolbar>
+</ion-header>
 
-  <!-- Empty State -->
-  <div *ngIf="!isLoading && watched.length === 0" class="empty-state">
-    <ion-icon name="bookmark-outline" class="empty-icon"></ion-icon>
-    <h3>Your list of watched movies is empty</h3>
-    <p>Start adding movies you've already watched</p>
-    <ion-button (click)="goToSearch()" color="primary" fill="outline">
-      <ion-icon name="search-outline" slot="start"></ion-icon>
-      Browse Movies
-    </ion-button>
-  </div>
+<!-- Empty State -->
+<div *ngIf="!isLoading && watched.length === 0" class="empty-state">
+<ion-icon name="bookmark-outline" class="empty-icon"></ion-icon>
+<h3>Your list of watched movies is empty</h3>
+<p>Start adding movies you've already watched</p>
+<ion-button (click)="goToSearch()" color="primary" fill="outline">
+<ion-icon name="search-outline" slot="start"></ion-icon>
+Browse Movies
+</ion-button>
+</div>
 
-  <!-- Loading State -->
-  <div *ngIf="isLoading" class="loading-container">
-    <ion-spinner name="crescent"></ion-spinner>
-    <p>Loading your list of watched movies...</p>
-  </div>
+<!-- Loading State -->
+<div *ngIf="isLoading" class="loading-container">
+<ion-spinner name="crescent"></ion-spinner>
+<p>Loading your list of watched movies...</p>
+</div>
 
-  <!-- Watchlist Items -->
-  <div *ngIf="!isLoading && watched.length > 0" class="watchlist-container">
-    <ion-list lines="full">
-      <ion-item
-        *ngFor="let movie of watched"
+<!-- Watchlist Items -->
+<div *ngIf="!isLoading && watched.length > 0" class="watchlist-container">
+<ion-list lines="full">
+<ion-item
+*ngFor="let movie of watched"
 
-        class="watchlist-item"
-        button>
+class="watchlist-item"
+button>
 
-        <!-- Poster Thumbnail -->
-        <div class="item-poster" slot="start">
-          <ion-img
-            [src]="movie.image"
-            [alt]="movie.title"
-            (ionError)="movie.image = 'assets/default-poster.jpg'">
-          </ion-img>
-        </div>
+<!-- Poster Thumbnail -->
+<div class="item-poster" slot="start">
+<ion-img
+[src]="movie.image"
+[alt]="movie.title"
+(ionError)="movie.image = 'assets/default-poster.jpg'">
+</ion-img>
+</div>
 
-        <!-- Movie Info -->
-        <ion-label class="movie-info">
-          <h2>{{ movie.title }}</h2>
-          <p *ngIf="movie.year">Released: {{ movie.year }}</p>
-          <p class="description">{{ getShortDescription(movie.description) }}</p>
-        </ion-label>
+<!-- Movie Info -->
+<ion-label class="movie-info">
+<h2>{{ movie.title }}</h2>
+<p *ngIf="movie.year">Released: {{ movie.year }}</p>
+<p class="description">{{ getShortDescription(movie.cast) }}</p>
+</ion-label>
 
-        <ion-button
-        slot="end"
-          fill="clear"
-          color="dark"
-        (click)="viewMovieDetails(movie)"
-          >View Details</ion-button>
-        <!-- Remove Button -->
-        <ion-button
-          slot="end"
-          fill="clear"
-          color="danger"
-          (click)="removeFromWatched(movie.id)"
-          class="remove-btn">
-          <ion-icon name="trash-outline" slot="icon-only"></ion-icon>
-        </ion-button>
-      </ion-item>
-    </ion-list>
+<ion-button
+slot="end"
+fill="clear"
+color="dark"
+(click)="viewMovieDetails(movie)"
+>View Details</ion-button>
 
-    <!-- Optional: Clear All Button -->
-    <div class="clear-all-container" *ngIf="watched.length > 0">
-      <ion-button
-        expand="block"
-        fill="clear"
-        color="danger"
-        (click)="clearAllWatched()">
-        <ion-icon name="trash-outline" slot="start"></ion-icon>
-        Clear All Watched Movies
-      </ion-button>
-    </div>
-  </div>
+<!-- Remove Button -->
+<!-- Update the remove button to pass the full movie object -->
+<ion-button
+slot="end"
+fill="clear"
+color="danger"
+(click)="removeFromWatched(movie, $event)"
+class="remove-btn">
+<ion-icon name="trash-outline" slot="icon-only"></ion-icon>
+</ion-button>
+</ion-item>
+</ion-list>
+
+<!-- Optional: Clear All Button -->
+<div class="clear-all-container" *ngIf="watched.length > 0">
+<ion-button
+expand="block"
+fill="clear"
+color="danger"
+(click)="clearAllWatched()">
+<ion-icon name="trash-outline" slot="start"></ion-icon>
+Clear All Watched Movies
+</ion-button>
+</div>
+</div>
 
 </ion-content>
 
 <div class="tabs-group">
-      <ion-tab-bar slot="bottom">
-    <ion-tab-button  (click)="goToSearch()">
-      <ion-icon name="search-outline"></ion-icon>
-      Search
-    </ion-tab-button>
-    <ion-tab-button (click)="goToWatchlist()">
-      <ion-icon name="list-outline"></ion-icon>
-      Watchlist
-    </ion-tab-button>
-    <ion-tab-button class="active-tab" (click)="goToWatched()">
-      <ion-icon name="checkmark-circle-outline"></ion-icon>
-      Watched
-    </ion-tab-button>
-    <ion-tab-button (click)="logOut()">
-      <ion-icon name="log-out-outline"></ion-icon>
-      Logout
-    </ion-tab-button>
-    </ion-tab-bar>
+<ion-tab-bar slot="bottom">
+<ion-tab-button  (click)="goToSearch()">
+<ion-icon name="search-outline"></ion-icon>
+Search
+</ion-tab-button>
+<ion-tab-button (click)="goToWatchlist()">
+<ion-icon name="list-outline"></ion-icon>
+Watchlist
+</ion-tab-button>
+<ion-tab-button class="active-tab" (click)="goToWatched()">
+<ion-icon name="checkmark-circle-outline"></ion-icon>
+Watched
+</ion-tab-button>
+<ion-tab-button (click)="logOut()">
+<ion-icon name="log-out-outline"></ion-icon>
+Logout
+</ion-tab-button>
+</ion-tab-bar>
 </div>

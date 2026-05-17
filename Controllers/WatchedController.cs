@@ -18,7 +18,17 @@ namespace FilmLog.Controllers
       _repository = repository;
     }
 
+    // Add this method to WatchedController.cs if not present
+    [HttpGet("by-imdb/{imdbId}")]
+    public async Task<ActionResult<WatchedItem>> GetByImdbId(string imdbId)
+    {
+      var userId = GetCurrentUserId();
+      var watchedItems = await _repository.GetByUserIdAsync(userId);
+      var item = watchedItems.FirstOrDefault(w => w.ImdbID == imdbId);
 
+      if (item == null) return NotFound();
+      return Ok(item);
+    }
 
     [HttpGet]
     public async Task<ActionResult<List<WatchedItem>>> GetAll()

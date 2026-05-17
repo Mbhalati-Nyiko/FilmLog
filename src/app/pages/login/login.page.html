@@ -7,130 +7,122 @@
       <div class="forms-wrap">
 
         <!-- Sign In Form -->
-        <form class="sign-in-form" (ngSubmit)="onLogin()">
-          <div class="logo">
-            <div class="logo-image">
-              <img [src]="myImagePath" alt="FilmLog">
-              <h2>FilmLog</h2>
-            </div>
-            <div>
-              <p>Track your movie journey</p>
-            </div>
-          </div>
+<form class="sign-in-form" [formGroup]="loginForm" (ngSubmit)="onLogin()">
+  <div class="logo">
+    <div class="logo-image">
+      <img [src]="myImagePath" alt="FilmLog">
+      <h2>FilmLog</h2>
+    </div>
+    <div>
+      <p>Track your movie journey</p>
+    </div>
+  </div>
 
+  <div class="heading">
+    <h2>Welcome Back</h2>
+    <h6>Not registered yet? </h6>
+    <a href="#" class="toggle" (click)="toggleForm(); $event.preventDefault()">Sign up</a>
+  </div>
 
-          <div class="heading">
-            <h2>Welcome Back</h2>
-            <h6>Not registered yet? </h6>
-            <a href="#" class="toggle" (click)="toggleForm(); $event.preventDefault()">Sign up</a>
-          </div>
+  <div class="actual-form">
+    <div class="input-wrap">
+      <ion-input
+        color="dark"
+        label="Username"
+        labelPlacement="floating"
+        type="text"
+        class="input-field"
+        formControlName="username"
+        required
+        autocomplete="off">
+      </ion-input>
+    </div>
 
-          <div class="actual-form">
-            <div class="input-wrap">
-              <ion-input
-                color="dark"
+    <div class="input-wrap">
+      <ion-input
+        color="dark"
+        label="Password"
+        labelPlacement="floating"
+        type="password"
+        class="input-field"
+        formControlName="password"
+        required>
+      </ion-input>
+    </div>
+  </div>
 
-                label="Username"
-                labelPlacement="floating"
-                type="text"
-                class="input-field"
-                [(ngModel)]="logInObj.username"
-                name="login-username"
-                required
-                autocomplete="off">
-              </ion-input>
-            </div>
+  <button type="submit" class="sign-btn" [disabled]="isLoading || loginForm.invalid">
+    {{ isLoading ? 'Signing in...' : 'Sign In' }}
+  </button>
 
-            <div class="input-wrap">
-              <ion-input
-                color="dark"
-
-                label="Password"
-                labelPlacement="floating"
-                type="password"
-                class="input-field"
-                [(ngModel)]="logInObj.password"
-                name="login-password"
-                required>
-              </ion-input>
-            </div>
-          </div>
-
-            <button type="submit" class="sign-btn">Sign In</button>
-
-            <p class="text">
-              <a href="#" (click)="$event.preventDefault(); showUsers()">Forgot password?</a>
-            </p>
-        </form>
+  <p class="text">
+    <a href="#" (click)="$event.preventDefault(); showUsers()">Debug Info</a>
+  </p>
+</form>
 
         <!-- Sign Up Form -->
-        <form class="sign-up-form" (ngSubmit)="onRegister()">
-          <div class="logo">
-            <img [src]="myImagePath" alt="FilmLog">
-            <h4>FilmLog</h4>
-          </div>
+<form class="sign-up-form" [formGroup]="signupForm" (ngSubmit)="onRegister()">
+  <div class="logo">
+    <img [src]="myImagePath" alt="FilmLog">
+    <h4>FilmLog</h4>
+  </div>
 
-          <div class="heading">
-            <h2>Get Started</h2>
-            <h6>Already have an account? </h6>
-            <a href="#" class="toggle" (click)="toggleForm(); $event.preventDefault()">Sign in</a>
-          </div>
+  <div class="heading">
+    <h2>Get Started</h2>
+    <h6>Already have an account? </h6>
+    <a href="#" class="toggle" (click)="toggleForm(); $event.preventDefault()">Sign in</a>
+  </div>
 
-          <div class="actual-form">
-            <div class="input-wrap">
-              <ion-input
-                color="dark"
+  <div class="actual-form">
+    <div class="input-wrap">
+      <ion-input
+        color="dark"
+        label="Username"
+        labelPlacement="floating"
+        type="text"
+        class="input-field"
+        formControlName="username"
+        required
+        autocomplete="off">
+      </ion-input>
+    </div>
 
-                label="Username"
-                labelPlacement="floating"
-                type="text"
-                class="input-field"
-                [(ngModel)]="signUpObj.username"
-                name="signup-username"
-                required
-                autocomplete="off">
-              </ion-input>
-            </div>
+    <div class="input-wrap">
+      <ion-input
+        color="dark"
+        label="Email"
+        labelPlacement="floating"
+        type="email"
+        class="input-field"
+        formControlName="email"
+        required
+        autocomplete="off">
+      </ion-input>
+    </div>
 
-            <div class="input-wrap">
-              <ion-input
-                color="dark"
-                label="Email"
-                labelPlacement="floating"
-                type="email"
-                class="input-field"
-                [(ngModel)]="signUpObj.email"
-                name="signup-email"
-                required
-                autocomplete="off">
-              </ion-input>
-            </div>
+    <div class="input-wrap">
+      <ion-input
+        color="dark"
+        label="Password"
+        labelPlacement="floating"
+        type="password"
+        class="input-field"
+        formControlName="password"
+        required>
+      </ion-input>
+    </div>
+  </div>
 
-            <div class="input-wrap">
-              <ion-input
-                color="dark"
+  <button type="submit" class="sign-btn" [disabled]="isLoading || signupForm.invalid">
+    {{ isLoading ? 'Signing up...' : 'Sign Up' }}
+  </button>
 
-                label="Password"
-                labelPlacement="floating"
-                type="password"
-                class="input-field"
-                [(ngModel)]="signUpObj.password"
-                name="signup-password"
-                required>
-              </ion-input>
-            </div>
-          </div>
-
-          <button type="submit" class="sign-btn">Sign Up</button>
-
-          <p class="text">
-            By signing up, you agree to our
-            <a href="#" (click)="$event.preventDefault()">Terms & Conditions</a>
-          </p>
-
-        </form>
+  <p class="text">
+    By signing up, you agree to our
+    <a href="#" (click)="$event.preventDefault()">Terms & Conditions</a>
+  </p>
+</form>
       </div>
-
 
       <!-- Carousel Section -->
       <div class="carousel">
@@ -145,7 +137,7 @@
     [isOpen]="showToast"
     [message]="toastMessage"
     [color]="toastColor"
-    [duration]="2000"
+    [duration]="3000"
     position="bottom">
   </ion-toast>
 </div>

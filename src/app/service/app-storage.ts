@@ -1,174 +1,153 @@
+// src/app/service/app-storage.ts
 import { Injectable } from '@angular/core';
-import { Storage } from '@ionic/storage-angular';
-import { Movie } from '../pages/movie-details/movie-details.page';
-import { BehaviorSubject } from 'rxjs';
+import { HttpClient } from '@angular/common/http';
+import { firstValueFrom } from 'rxjs';
 import { AuthenticationService } from './authentication-service';
+import { Movie } from 'src/app/models/movieModel';
+
+export interface WatchlistItem {
+  id: number;  // Database ID (integer)
+  userId: number;
+  title: string;
+  poster: string;
+  year: string;
+  genre: string;
+  cast: string;
+  imdbID: string;
+  addedAt: string;
+}
+
+export interface WatchedItem {
+  id: number;  // Database ID (integer)
+  userId: number;
+  title: string;
+  poster: string;
+  year: string;
+  genre: string;
+  cast: string;
+  imdbID: string;
+  watchedAt: string;
+}
 
 @Injectable({
   providedIn: 'root'
 })
 export class AppStorage {
-  private storageReady = new BehaviorSubject(false);
-  private _storage: Storage | null = null;
+  private apiUrl = 'http://localhost:5165/api';
 
   constructor(
-    private storage: Storage,
-    private authService: AuthenticationService  // Inject auth service
-  ) {
-    this.init();
+    private http: HttpClient,
+    private authService: AuthenticationService
+  ) {}
+
+  private getHeaders() {
+    const token = this.authService.getToken();
+    return {
+      Authorization: `Bearer ${token}`,
+      'Content-Type': 'application/json'
+    };
   }
 
-  async init() {
-    const storage = await this.storage.create();
-    this._storage = storage;
-    this.storageReady.next(true);
+  async addToWatched(movie: Movie): Promise<any> {
+    const watchedItem = {
+      title: movie.title,
+      poster: movie.poster || movie.image,
+      year: movie.year,
+      genre: typeof movie.genre === 'string' ? movie.genre : (movie.genre || ''),
+      cast: typeof movie.cast === 'string' ? movie.cast : (movie.cast || ''),
+      imdbID: movie.imdbID || movie.id
+    };
+
+    return await firstValueFrom(
+      this.http.post(`${this.apiUrl}/watched`, watchedItem, { headers: this.getHeaders() })
+    );
   }
 
-  // Get current user ID from auth service
-  private getCurrentUserId(): string | null {
-    const currentUser = this.authService.getCurrentUser();
-    return currentUser ? currentUser.username : null; // Using username as unique identifier
+  async removeFromWatched(databaseId: number): Promise<void> {
+    await firstValueFrom(
+      this.http.delete(`${this.apiUrl}/watched/${databaseId}`, { headers: this.getHeaders() })
+    );
   }
 
-  // Get user-specific storage key
-  private getUserKey(baseKey: string): string {
-    const userId = this.getCurrentUserId();
-    if (!userId) {
-      throw new Error('No user logged in');
-    }
-    return `${userId}_${baseKey}`;
+  async isMovieWatched(imdbId: string): Promise<boolean> {
+    const watched = await this.getWatchedMovies();
+    return watched.some(m => m.imdbID === imdbId);
   }
 
-  // Watched Movies - User Specific
-  async addToWatched(movie: Movie): Promise<void> {
-    try {
-      const key = this.getUserKey('watched_movies');
-      const watched = await this.getWatchedMovies();
-      if (!watched.find(m => m.id === movie.id)) {
-        watched.push(movie);
-        await this._storage?.set(key, watched);
-        console.log(`Movie added to watched for user ${this.getCurrentUserId()}`);
-      }
-    } catch (error) {
-      console.error('Error adding to watched:', error);
-    }
+  async addToWatchlist(movie: Movie): Promise<any> {
+    const watchlistItem = {
+      title: movie.title,
+      poster: movie.poster || movie.image,
+      year: movie.year,
+      genre: typeof movie.genre === 'string' ? movie.genre : (movie.genre || ''),
+      cast: typeof movie.cast === 'string' ? movie.cast : (movie.cast || ''),
+      imdbID: movie.imdbID || movie.id
+    };
+
+    return await firstValueFrom(
+      this.http.post(`${this.apiUrl}/watchlist`, watchlistItem, { headers: this.getHeaders() })
+    );
   }
 
-  async removeFromWatched(movieId: string): Promise<void> {
-    try {
-      const key = this.getUserKey('watched_movies');
-      const watched = await this.getWatchedMovies();
-      const filtered = watched.filter(m => m.id !== movieId);
-      await this._storage?.set(key, filtered);
-    } catch (error) {
-      console.error('Error removing from watched:', error);
-    }
+  async removeFromWatchlist(databaseId: number): Promise<void> {
+    await firstValueFrom(
+      this.http.delete(`${this.apiUrl}/watchlist/${databaseId}`, { headers: this.getHeaders() })
+    );
   }
 
   async getWatchedMovies(): Promise<Movie[]> {
-    try {
-      const key = this.getUserKey('watched_movies');
-      return await this._storage?.get(key) || [];
-    } catch (error) {
-      console.error('Error getting watched movies:', error);
-      return [];
-    }
-  }
+    const response = await firstValueFrom(
+      this.http.get<WatchedItem[]>(`${this.apiUrl}/watched`, { headers: this.getHeaders() })
+    );
 
-  async isMovieWatched(movieId: string): Promise<boolean> {
-    try {
-      const watched = await this.getWatchedMovies();
-      return watched.some(m => m.id === movieId);
-    } catch (error) {
-      return false;
-    }
-  }
-
-  // Watchlist - User Specific
-  async addToWatchlist(movie: Movie): Promise<void> {
-    try {
-      const key = this.getUserKey('watchlist');
-      const watchlist = await this.getWatchlist();
-      if (!watchlist.find(m => m.id === movie.id)) {
-        watchlist.push(movie);
-        await this._storage?.set(key, watchlist);
-        console.log(`Movie added to watchlist for user ${this.getCurrentUserId()}`);
-      }
-    } catch (error) {
-      console.error('Error adding to watchlist:', error);
-    }
-  }
-
-  async removeFromWatchlist(movieId: string): Promise<void> {
-    try {
-      const key = this.getUserKey('watchlist');
-      const watchlist = await this.getWatchlist();
-      const filtered = watchlist.filter(m => m.id !== movieId);
-      await this._storage?.set(key, filtered);
-      console.log(`Movie removed from watchlist for user ${this.getCurrentUserId()}`);
-    } catch (error) {
-      console.error('Error removing from watchlist:', error);
-    }
+    return response.map(item => ({
+      id: item.imdbID,  // For display, use imdbID as string ID
+      imdbID: item.imdbID,
+      title: item.title,
+      year: item.year,
+      image: item.poster,
+      poster: item.poster,
+      description: `${item.title} (${item.year})`,
+      cast: item.cast || 'No cast information',
+      genre: item.genre,
+      watchedItemId: item.id  // Store database ID for deletion
+    }));
   }
 
   async getWatchlist(): Promise<Movie[]> {
-    try {
-      const key = this.getUserKey('watchlist');
-      return await this._storage?.get(key) || [];
-    } catch (error) {
-      console.error('Error getting watchlist:', error);
-      return [];
-    }
+    const response = await firstValueFrom(
+      this.http.get<WatchlistItem[]>(`${this.apiUrl}/watchlist`, { headers: this.getHeaders() })
+    );
+
+    return response.map(item => ({
+      id: item.imdbID,  // For display, use imdbID as string ID
+      imdbID: item.imdbID,
+      title: item.title,
+      year: item.year,
+      image: item.poster,
+      poster: item.poster,
+      description: `${item.title} (${item.year})`,
+      cast: item.cast || 'No cast information',
+      genre: item.genre,
+      watchlistItemId: item.id  // Store database ID for deletion
+    }));
   }
 
-  async isInWatchlist(movieId: string): Promise<boolean> {
-    try {
-      const watchlist = await this.getWatchlist();
-      return watchlist.some(m => m.id === movieId);
-    } catch (error) {
-      return false;
-    }
+  async isInWatchlist(imdbId: string): Promise<boolean> {
+    const watchlist = await this.getWatchlist();
+    return watchlist.some(m => m.imdbID === imdbId);
   }
 
-  // Clear user data on logout
-  async clearUserDataOnLogout(): Promise<void> {
+  async moveFromWatchlistToWatched(movie: Movie): Promise<boolean> {
     try {
-      const userId = this.getCurrentUserId();
-      if (userId) {
-        // Don't delete the data, just let it stay for next login
-        console.log(`User ${userId} logged out, data preserved`);
+      await this.addToWatched(movie);
+      if (movie.watchlistItemId) {
+        await this.removeFromWatchlist(movie.watchlistItemId);
       }
+      return true;
     } catch (error) {
-      console.error('Error during logout cleanup:', error);
-    }
-  }
-
-  // Clear all data (for testing)
-  async clearAll(): Promise<void> {
-    await this._storage?.clear();
-  }
-
-  // Add this method to app-storage.ts for better error handling
-async moveFromWatchlistToWatched(movie: Movie): Promise<boolean> {
-  try {
-    // Check if movie is in watchlist first
-    const isInList = await this.isInWatchlist(movie.id);
-    if (!isInList) {
-      console.error('Movie not found in watchlist');
+      console.error('Error moving movie:', error);
       return false;
     }
-
-    // Add to watched
-    await this.addToWatched(movie);
-
-    // Remove from watchlist
-    await this.removeFromWatchlist(movie.id);
-
-    console.log(`Movie "${movie.title}" moved successfully`);
-    return true;
-  } catch (error) {
-    console.error('Error moving movie:', error);
-    return false;
   }
-}
 }

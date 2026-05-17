@@ -1,143 +1,113 @@
-import { User } from './../../models/userModel';
-// login.page.ts
-import { Component, OnInit, ViewChild, ElementRef } from '@angular/core';
-import { IonInput, IonToggle, IonToast } from "@ionic/angular/standalone";
-import { FormsModule } from '@angular/forms';
+import { Component, OnInit } from '@angular/core';
+import { IonInput, IonToast } from "@ionic/angular/standalone";
+import { ReactiveFormsModule } from '@angular/forms';
 import { AuthenticationService } from '../../service/authentication-service';
 import { Router } from '@angular/router';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { firstValueFrom } from 'rxjs';
+import { CommonModule } from '@angular/common';
 
 @Component({
   selector: 'app-login',
-  imports: [IonToast, IonInput, FormsModule],
+  standalone: true,
+  imports: [IonToast, IonInput, ReactiveFormsModule, CommonModule],
   templateUrl: './login.page.html',
   styleUrls: ['./login.page.scss'],
 })
 export class LoginPage implements OnInit {
   loginForm: FormGroup;
   signupForm: FormGroup;
-  signUpObj: SignUpModel = new SignUpModel();
-  logInObj: LogInModel = new LogInModel();
   isSignUpMode: boolean = false;
   myImagePath = "assets/logo/FilmLog-Logo2.jpg";
   isLoading = false;
-  errorMessage = '';
   showToast: boolean = false;
   toastMessage: string = '';
   toastColor: string = 'success';
 
-  @ViewChild('toggle') toggleRef!: ElementRef<IonToggle>;
-  @ViewChild('loginContainer') loginContainerRef!: ElementRef;
-  @ViewChild('ion-input') inputRef!: ElementRef<IonInput>;
-
   constructor(
     private authService: AuthenticationService,
     private router: Router,
-    private fb: FormBuilder) {
+    private fb: FormBuilder
+  ) {
     this.loginForm = this.fb.group({
       username: ['', [Validators.required, Validators.minLength(3)]],
-      password: ['', [Validators.required, Validators.minLength(6)]]
+      password: ['', [Validators.required, Validators.minLength(3)]]
     });
 
     this.signupForm = this.fb.group({
       username: ['', [Validators.required, Validators.minLength(3)]],
       email: ['', [Validators.required, Validators.email]],
-      password: ['', [Validators.required, Validators.minLength(6)]]
+      password: ['', [Validators.required, Validators.minLength(3)]]
     });
   }
 
   ngOnInit() {
-    // Check if already logged in
     if (this.authService.isAuthenticated()) {
       this.router.navigate(['/search']);
     }
   }
 
-  ngAfterViewInit() {
-    // Optional: Animation or initialization logic here
-
-  }
-
-  showUsers(){
-    console.log(localStorage)
-  }
-
-  onRegister() {
-    this.isLoading = true;
-    this.errorMessage = '';
-
-    const success = this.authService.onRegister(this.signUpObj);
-
-    if (success) {
-      console.log('Registration successful');
-      // Clear form after successful registration
-      this.signUpObj = new SignUpModel();
-      // Switch to login mode
-      this.isSignUpMode = false;
-      // Show success message
-      this.showToastMessage('Registration successful! Please login.', 'success');
-      alert('Registration successful! Please login.');
-      // Clear inputs
-      this.signupForm.reset();
-      this.loginForm.reset();
-
-    } else {
-      //Delete all users for testing purposes
-      // this.deleteAllUser();
-      // console.log(localStorage)
-      this.showToastMessage('Registration failed. User may already exist.', 'danger');
-      this.errorMessage = 'Registration failed. User may already exist.';
-      console.error('Registration failed');
+  async onRegister() {
+    if (this.signupForm.invalid) {
+      this.showToastMessage('Please fill all fields correctly', 'warning');
+      return;
     }
 
-    this.isLoading = false;
-  }
+    this.isLoading = true;
+    const signUpObj = this.signupForm.value;
 
-  // Delete all users
-  deleteAllUser(){
-    localStorage.clear();
+    try {
+      const response = await firstValueFrom(
+        this.authService.onRegister(signUpObj)
+      );
+
+      console.log('Registration successful', response);
+      this.resetForms();
+      this.isSignUpMode = false;
+      this.showToastMessage('Registration successful! Please login.', 'success');
+
+    } catch (error: any) {
+      this.showToastMessage(error.message || 'Registration failed', 'danger');
+      console.error('Registration error:', error);
+    } finally {
+      this.isLoading = false;
+    }
   }
 
   async onLogin() {
+    if (this.loginForm.invalid) {
+      this.showToastMessage('Please enter username and password', 'warning');
+      return;
+    }
+
     this.isLoading = true;
-    this.errorMessage = '';
+    const logInObj = this.loginForm.value;
 
     try {
-      const success = this.authService.login(this.logInObj);
-      if (success) {
-        // Clear inputs
-        this.signupForm.reset();
-        this.loginForm.reset();
-        console.log('Login successful, navigating to search');
-        this.router.navigate(['/search']);
-      } else {
-        this.showToastMessage('Invalid username or password', 'danger');
-        this.errorMessage = 'Invalid username or password';
-      }
-    } catch (error) {
-      this.errorMessage = 'An error occurred. Please try again.';
-      this.showToastMessage(this.errorMessage, 'danger');
+      const response = await firstValueFrom(
+        this.authService.login(logInObj)
+      );
+
+      console.log('Login successful', response);
+      this.resetForms();
+      this.router.navigate(['/search']);
+
+    } catch (error: any) {
+      this.showToastMessage(error.message || 'Invalid username or password', 'danger');
       console.error('Login error:', error);
     } finally {
       this.isLoading = false;
     }
   }
 
-  toggleForm() {
-    this.isSignUpMode = !this.isSignUpMode;
-    // Clear forms when toggling
-    if (this.isSignUpMode) {
-      this.logInObj = new LogInModel();
-      this.errorMessage = '';
-    } else {
-      this.signUpObj = new SignUpModel();
-      this.errorMessage = '';
-    }
+  private resetForms(): void {
+    this.signupForm.reset();
+    this.loginForm.reset();
   }
 
-  logOut(){
-    this.authService.logout();
-    this.router.navigate(['/login']);
+  toggleForm() {
+    this.isSignUpMode = !this.isSignUpMode;
+    this.resetForms();
   }
 
   showToastMessage(message: string, color: string = 'success') {
@@ -146,28 +116,12 @@ export class LoginPage implements OnInit {
     this.showToast = true;
     setTimeout(() => {
       this.showToast = false;
-    }, 2000);
+    }, 3000);
   }
-}
 
-export class SignUpModel {
-  username: string = '';
-  password: string = '';
-  email: string = '';
-
-  constructor() {
-    this.username = "";
-    this.password = "";
-    this.email = "";
-  }
-}
-
-export class LogInModel {
-  username: string = '';
-  password: string = '';
-
-  constructor() {
-    this.username = "";
-    this.password = "";
+  showUsers() {
+    console.log('Local storage:', localStorage);
+    console.log('Current user:', this.authService.getCurrentUser());
+    console.log('Is authenticated:', this.authService.isAuthenticated());
   }
 }

@@ -1,10 +1,9 @@
 import { Component, OnInit } from '@angular/core';
 import { AppStorage } from '../service/app-storage';
 import { AuthenticationService } from '../service/authentication-service';
-import { Movie } from '../pages/movie-details/movie-details.page';
+import { Movie } from 'src/app/models/movieModel';
 import { Router } from '@angular/router';
-import { AlertController } from '@ionic/angular';
-import { MovieDetailsPage } from '../pages/movie-details/movie-details.page';
+import { AlertController, ToastController } from '@ionic/angular';
 
 @Component({
   selector: 'app-watchlist',
@@ -21,28 +20,26 @@ export class WatchlistPage implements OnInit {
     private appStorage: AppStorage,
     private authService: AuthenticationService,
     private router: Router,
-    private alertController : AlertController,
+    private alertController: AlertController,
+    private toastController: ToastController,
   ) {}
 
-  goToSearch(){
+  goToSearch() {
     this.router.navigate(['/search']);
-    return;
   }
 
-  goToWatchlist(){
+  goToWatchlist() {
     this.router.navigate(['/watchlist']);
-    return;
   }
 
-  goToWatched(){
+  goToWatched() {
     this.router.navigate(['/watched']);
-    return;
   }
 
-  logOut(){
+  logOut() {
     this.authService.logout();
     this.router.navigate(['/login']);
-}
+  }
 
   async ngOnInit() {
     this.checkAuth();
@@ -57,9 +54,7 @@ export class WatchlistPage implements OnInit {
 
   checkAuth() {
     this.isLoggedIn = this.authService.isAuthenticated();
-
     if (!this.isLoggedIn) {
-      // Redirect to login if not authenticated
       this.router.navigate(['/login']);
     }
   }
@@ -73,74 +68,25 @@ export class WatchlistPage implements OnInit {
       header: 'Move to Watched',
       message: `Mark "${movie.title}" as watched? This will remove it from your watchlist.`,
       buttons: [
-        {
-          text: 'Cancel',
-          role: 'cancel',
-          cssClass: 'secondary'
-        },
-        {
-          text: 'Yes, Mark as Watched',
-          handler: async () => {
-            await this.performMoveToWatched(movie);
-          }
-        }
+        { text: 'Cancel', role: 'cancel', cssClass: 'secondary' },
+        { text: 'Yes, Mark as Watched', handler: async () => await this.performMoveToWatched(movie) }
       ]
     });
-
     await alert.present();
   }
 
-   async performMoveToWatched(movie: Movie) {
+  async performMoveToWatched(movie: Movie) {
     this.isLoading = true;
-
-
     try {
-      // Add to watched list
       await this.appStorage.addToWatched(movie);
-
-      // Remove from watchlist
-      await this.appStorage.removeFromWatchlist(movie.id);
-
-      // Reload watchlist
+      if (movie.watchlistItemId) {
+        await this.appStorage.removeFromWatchlist(movie.watchlistItemId);
+      }
       await this.loadWatchlist();
-
-      // Show success message
-      const successAlert = await this.alertController.create({
-        header: 'Success!',
-        message: `"${movie.title}" has been moved to your watched list.`,
-        buttons: ['OK'],
-        cssClass: 'success-alert'
-      });
-
-      await successAlert.present();
-
-      console.log(`Movie "${movie.title}" moved to watched`);
+      this.showToast(`"${movie.title}" moved to watched list`, 'success');
     } catch (error) {
       console.error('Error moving to watched:', error);
-      const errorAlert = await this.alertController.create({
-        header: 'Error',
-        message: 'Failed to move movie. Please try again.',
-        buttons: ['OK']
-      });
-      await errorAlert.present();
-    } finally {
-      this.isLoading = false;
-    }
-  }
-
-  async performRemoveFromWatchlist(movieId: string) {
-    this.isLoading = true;
-    try {
-      await this.appStorage.removeFromWatchlist(movieId);
-      await this.loadWatchlist();
-
-      const toast = document.createElement('ion-toast');
-      toast.message = 'Movie removed from watchlist';
-      toast.duration = 2000;
-      document.body.appendChild(toast);
-      toast.present();
-    } catch (error) {
-      console.error('Error removing from watchlist:', error);
+      this.showToast('Failed to move movie', 'danger');
     } finally {
       this.isLoading = false;
     }
@@ -148,63 +94,86 @@ export class WatchlistPage implements OnInit {
 
   async loadWatchlist() {
     if (!this.isLoggedIn) return;
-
     this.isLoading = true;
     try {
       this.watchlist = await this.appStorage.getWatchlist();
-      console.log('Watchlist loaded for user:', this.authService.getCurrentUser()?.username, this.watchlist.length, 'items');
+      console.log('Watchlist loaded:', this.watchlist.length, 'items');
     } catch (error) {
       console.error('Error loading watchlist:', error);
+      this.showToast('Failed to load watchlist', 'danger');
     } finally {
       this.isLoading = false;
     }
   }
 
   viewMovieDetails(movie: Movie) {
-    this.router.navigate(['/movie-details'], {
-      state: { movie: movie }
-    });
+    this.router.navigate(['/movie-details'], { state: { movie: movie } });
   }
 
-  async removeFromWatchlist(movieId: string, event: Event) {
+  async removeFromWatchlist(movie: Movie, event: Event) {
     event.stopPropagation();
 
-    try {
-      await this.appStorage.removeFromWatchlist(movieId);
-      await this.loadWatchlist();
-      console.log('Movie removed from watchlist');
-    } catch (error) {
-      console.error('Error removing from watchlist:', error);
-    }
+    const alert = await this.alertController.create({
+      header: 'Remove Movie',
+      message: `Remove "${movie.title}" from your watchlist?`,
+      buttons: [
+        { text: 'Cancel', role: 'cancel' },
+        { text: 'Remove', handler: async () => {
+            if (movie.watchlistItemId) {
+              await this.appStorage.removeFromWatchlist(movie.watchlistItemId);
+              await this.loadWatchlist();
+              this.showToast('Movie removed from watchlist', 'success');
+            }
+          }
+        }
+      ]
+    });
+    await alert.present();
   }
 
   async clearAllWatchlist() {
-    const confirmed = confirm('Are you sure you want to clear your entire watchlist?');
-
-    if (confirmed) {
-      try {
-        for (const movie of this.watchlist) {
-          await this.appStorage.removeFromWatchlist(movie.id);
+    const alert = await this.alertController.create({
+      header: 'Clear Watchlist',
+      message: 'Are you sure you want to clear your entire watchlist?',
+      buttons: [
+        { text: 'Cancel', role: 'cancel' },
+        { text: 'Clear All', handler: async () => {
+            this.isLoading = true;
+            try {
+              for (const movie of this.watchlist) {
+                if (movie.watchlistItemId) {
+                  await this.appStorage.removeFromWatchlist(movie.watchlistItemId);
+                }
+              }
+              await this.loadWatchlist();
+              this.showToast('Watchlist cleared', 'success');
+            } catch (error) {
+              console.error('Error clearing watchlist:', error);
+              this.showToast('Failed to clear watchlist', 'danger');
+            } finally {
+              this.isLoading = false;
+            }
+          }
         }
-        await this.loadWatchlist();
-        console.log('Watchlist cleared');
-      } catch (error) {
-        console.error('Error clearing watchlist:', error);
-      }
-    }
+      ]
+    });
+    await alert.present();
   }
 
-
-  getShortDescription(description: string | undefined): string {
-    if (!description) {
-      return 'No description available';
-    }
-
+  getShortDescription(cast: string | string[] | undefined): string {
+    if (!cast) return 'No cast information available';
+    let castString = Array.isArray(cast) ? cast.join(', ') : cast;
     const maxLength = 80;
-    if (description.length <= maxLength) {
-      return description;
-    }
+    return castString.length <= maxLength ? castString : castString.substring(0, maxLength) + '...';
+  }
 
-    return description.substring(0, maxLength) + '...';
+  private async showToast(message: string, color: string = 'success') {
+    const toast = await this.toastController.create({
+      message,
+      duration: 2000,
+      color,
+      position: 'bottom'
+    });
+    await toast.present();
   }
 }

@@ -35,11 +35,24 @@ namespace FilmLog.Repositories
       return user;
     }
 
-    public async Task<User> UpdateUserAsync(User user)
+    public async Task<User?> UpdateUserAsync(User user)
     {
-      _context.Users.Update(user);
+      // Ensure the entity exists and is tracked
+      var existingUser = await _context.Users.FindAsync(user.Id);
+      if (existingUser == null)
+        return null;
+
+      // Update only allowed fields
+      existingUser.Username = user.Username;
+      existingUser.Email = user.Email;
+      
+
+      // Only update password if a new one is provided
+      if (!string.IsNullOrWhiteSpace(user.PasswordHash))
+        existingUser.PasswordHash = user.PasswordHash;
+
       await _context.SaveChangesAsync();
-      return user;
+      return existingUser;
     }
 
     public async Task<bool> DeleteUserAsync(int id)

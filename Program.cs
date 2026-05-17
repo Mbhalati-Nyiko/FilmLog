@@ -93,38 +93,38 @@ app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();
 
-// Ensure database is created and seed data added
-//using (var scope = app.Services.CreateScope())
+// ensure database is created and seed data added
+//using (var scope = app.services.createscope())
 //{
-//  var dbContext = scope.ServiceProvider.GetRequiredService<FilmLogDbContext>();
-//  dbContext.Database.EnsureCreated();
+//  var dbcontext = scope.serviceprovider.getrequiredservice<filmlogdbcontext>();
+//  dbcontext.database.ensurecreated();
 
-//  // Seed users if none exist
-//  if (!dbContext.Users.Any())
+//  // seed users if none exist
+//  if (!dbcontext.users.any())
 //  {
-//    var hashedAdmin = BCrypt.Net.BCrypt.HashPassword("admin123");
-//    var hashedGuest = BCrypt.Net.BCrypt.HashPassword("guest123");
+//    var hashedadmin = bcrypt.net.bcrypt.hashpassword("admin123");
+//    var hashedguest = bcrypt.net.bcrypt.hashpassword("guest123");
 
-//    dbContext.Users.AddRange(
-//        new User
+//    dbcontext.users.addrange(
+//        new user
 //        {
-//          Username = "admin",
-//          Email = "admin@example.com",
-//          PasswordHash = hashedAdmin,
-//          CreatedAt = DateTime.UtcNow
+//          username = "admin",
+//          email = "admin@example.com",
+//          passwordhash = hashedadmin,
+//          createdat = datetime.utcnow
 //        },
-//        new User
+//        new user
 //        {
-//          Username = "guest",
-//          Email = "guest@example.com",
-//          PasswordHash = hashedGuest,
-//          CreatedAt = DateTime.UtcNow
+//          username = "guest",
+//          email = "guest@example.com",
+//          passwordhash = hashedguest,
+//          createdat = datetime.utcnow
 //        }
 //    );
-//    dbContext.SaveChanges();
+//    dbcontext.savechanges();
 
-//    var logger = scope.ServiceProvider.GetRequiredService<ILogger<Program>>();
-//    logger.LogInformation("Database seeded with default users");
+//    var logger = scope.serviceprovider.getrequiredservice<ilogger<program>>();
+//    logger.loginformation("database seeded with default users");
 //  }
 //}
 

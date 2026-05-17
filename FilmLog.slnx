@@ -1,3 +1,4 @@
 <Solution>
+  <Project Path="../FilmLog.Tests/FilmLog.Tests.csproj" />
   <Project Path="FilmLog.csproj" />
 </Solution>

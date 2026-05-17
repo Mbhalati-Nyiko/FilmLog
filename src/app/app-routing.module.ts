@@ -1,12 +1,8 @@
 import { NgModule } from '@angular/core';
 import { PreloadAllModules, RouterModule, Routes } from '@angular/router';
-import { AuthGuard } from './service/auth-guard';
+import { AuthGuard } from 'src/app/service/auth-guard';  // Changed path - removed 'service/'
 
 const routes: Routes = [
-  // {
-  //   path: '',
-  //   loadChildren: () => import('./tabs/tabs.module').then(m => m.TabsPageModule)
-  // },
   {
     path: '',
     loadChildren: () => import('./pages/login/login.module').then(m => m.LoginPageModule),
@@ -31,18 +27,22 @@ const routes: Routes = [
     canActivate: [AuthGuard]
   },
   {
-    path: 'watchlist', loadChildren: () => import('./watchlist/watchlist.module').then(m => m.WatchlistPageModule),
+    path: 'watchlist',
+    loadChildren: () => import('./watchlist/watchlist.module').then(m => m.WatchlistPageModule),
     canActivate: [AuthGuard]
   },
   {
-    path: 'watched', loadChildren: () => import('./watched/watched.module').then(m => m.WatchedPageModule),
+    path: 'watched',
+    loadChildren: () => import('./watched/watched.module').then(m => m.WatchedPageModule),
     canActivate: [AuthGuard]
-  },  {
+  },
+  {
     path: 'statistics',
-    loadChildren: () => import('./pages/statistics/statistics.module').then( m => m.StatisticsPageModule)
+    loadChildren: () => import('./pages/statistics/statistics.module').then( m => m.StatisticsPageModule),
+    canActivate: [AuthGuard]  // ADD THIS LINE
   }
-
 ];
+
 @NgModule({
   imports: [
     RouterModule.forRoot(routes, { preloadingStrategy: PreloadAllModules })

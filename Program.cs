@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
+using Scalar.AspNetCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -75,7 +76,7 @@ builder.Services.AddCors(options =>
 });
 
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+builder.Services.AddOpenApi();
 
 var app = builder.Build();
 
@@ -84,48 +85,18 @@ app.UseCors("AllowFrontend");
 // Configure pipeline
 if (app.Environment.IsDevelopment())
 {
-  app.UseSwagger();
-  app.UseSwaggerUI();
+  app.MapOpenApi();
+  app.MapScalarApiReference(options =>
+  {
+    options.WithPreferredScheme("http"); // Force HTTP for development
+  });
 }
 
-app.UseHttpsRedirection();
+// Comment out or conditionally use HTTPS
+// app.UseHttpsRedirection();
+
 app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();
-
-// ensure database is created and seed data added
-//using (var scope = app.services.createscope())
-//{
-//  var dbcontext = scope.serviceprovider.getrequiredservice<filmlogdbcontext>();
-//  dbcontext.database.ensurecreated();
-
-//  // seed users if none exist
-//  if (!dbcontext.users.any())
-//  {
-//    var hashedadmin = bcrypt.net.bcrypt.hashpassword("admin123");
-//    var hashedguest = bcrypt.net.bcrypt.hashpassword("guest123");
-
-//    dbcontext.users.addrange(
-//        new user
-//        {
-//          username = "admin",
-//          email = "admin@example.com",
-//          passwordhash = hashedadmin,
-//          createdat = datetime.utcnow
-//        },
-//        new user
-//        {
-//          username = "guest",
-//          email = "guest@example.com",
-//          passwordhash = hashedguest,
-//          createdat = datetime.utcnow
-//        }
-//    );
-//    dbcontext.savechanges();
-
-//    var logger = scope.serviceprovider.getrequiredservice<ilogger<program>>();
-//    logger.loginformation("database seeded with default users");
-//  }
-//}
 
 app.Run();

@@ -14,7 +14,7 @@ import { AuthInterceptor } from './service/auth-interceptor';
     BrowserModule,
     IonicModule.forRoot(),
     AppRoutingModule,
-    HttpClientModule  // Make sure this is imported
+    HttpClientModule,  // Make sure this is imported
   ],
   providers: [
     { provide: RouteReuseStrategy, useClass: IonicRouteStrategy },

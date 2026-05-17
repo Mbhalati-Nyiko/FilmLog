@@ -4,6 +4,7 @@ import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
 import { BehaviorSubject, Observable, throwError } from 'rxjs';
 import { catchError, map, tap } from 'rxjs/operators';
+import { environment } from 'src/environments/environment';
 
 export interface LoginRequest {
   username: string;  // Changed from 'name' to match backend
@@ -32,7 +33,7 @@ export interface User {
   providedIn: 'root'
 })
 export class AuthenticationService {
-  private apiUrl = 'http://localhost:5165/api';
+  private apiUrl = environment.apiUrl;
   private tokenKey = 'jwt_token';
   private userKey = 'user_info';
   private isAuthenticatedSubject = new BehaviorSubject<boolean>(false);
@@ -126,6 +127,15 @@ export class AuthenticationService {
     localStorage.removeItem(this.tokenKey);
     localStorage.removeItem(this.userKey);
     this.isAuthenticatedSubject.next(false);
-    this.router.navigate(['/login']);
+
+    // Clear all navigation history and state
+    // Navigate to login with replaceUrl to prevent going back
+    this.router.navigate(['/login'], {
+      replaceUrl: true,
+      skipLocationChange: false
+    }).then(() => {
+      // Clear browser history to prevent back button issues
+      history.pushState(null, '', location.href);
+    });
   }
 }

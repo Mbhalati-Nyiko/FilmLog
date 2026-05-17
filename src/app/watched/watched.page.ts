@@ -120,6 +120,9 @@ export class WatchedPage implements OnInit {
   goToSearch() { this.router.navigate(['/search']); }
   goToWatchlist() { this.router.navigate(['/watchlist']); }
   goToWatched() { this.router.navigate(['/watched']); }
+  goToStats(){
+    this.router.navigate(['/statistics'])
+  }
   logOut() { this.authService.logout(); this.router.navigate(['/login']); }
 
   private async showToast(message: string, color: string = 'success') {
@@ -131,4 +134,34 @@ export class WatchedPage implements OnInit {
     });
     await toast.present();
   }
+
+  async moveToWatched(movie: Movie) {
+    const alert = await this.alertController.create({
+      header: 'Move to Watched',
+      message: `Do you want to rewatch "${movie.title}"?`,
+      buttons: [
+        { text: 'Cancel', role: 'cancel', cssClass: 'secondary' },
+        { text: 'Yes, Rewatch', handler: async () => await this.performMoveToWatched(movie) }
+      ]
+    });
+    await alert.present();
+  }
+
+  async performMoveToWatched(movie: Movie) {
+    this.isLoading = true;
+    try {
+      await this.appStorage.addToWatched(movie);
+      if (movie.watchlistItemId) {
+        await this.appStorage.removeFromWatchlist(movie.watchlistItemId);
+      }
+      this.showToast(`"${movie.title}" rewatched`, 'success');
+    } catch (error) {
+      console.error('Error marking as rewatched:', error);
+      this.showToast('Failed to move movie', 'danger');
+    } finally {
+      this.isLoading = false;
+    }
+  }
+
+
 }

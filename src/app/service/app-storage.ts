@@ -4,6 +4,7 @@ import { HttpClient } from '@angular/common/http';
 import { firstValueFrom } from 'rxjs';
 import { AuthenticationService } from './authentication-service';
 import { Movie } from 'src/app/models/movieModel';
+import { environment } from 'src/environments/environment';
 
 export interface WatchlistItem {
   id: number;  // Database ID (integer)
@@ -14,6 +15,8 @@ export interface WatchlistItem {
   genre: string;
   cast: string;
   imdbID: string;
+  rating: string;
+  runtime: string;
   addedAt: string;
 }
 
@@ -26,6 +29,8 @@ export interface WatchedItem {
   genre: string;
   cast: string;
   imdbID: string;
+  rating: string;
+  runtime: string
   watchedAt: string;
 }
 
@@ -33,7 +38,7 @@ export interface WatchedItem {
   providedIn: 'root'
 })
 export class AppStorage {
-  private apiUrl = 'http://localhost:5165/api';
+  private apiUrl = environment.apiUrl;
 
   constructor(
     private http: HttpClient,
@@ -48,20 +53,84 @@ export class AppStorage {
     };
   }
 
-  async addToWatched(movie: Movie): Promise<any> {
-    const watchedItem = {
-      title: movie.title,
-      poster: movie.poster || movie.image,
-      year: movie.year,
-      genre: typeof movie.genre === 'string' ? movie.genre : (movie.genre || ''),
-      cast: typeof movie.cast === 'string' ? movie.cast : (movie.cast || ''),
-      imdbID: movie.imdbID || movie.id
-    };
+  // Update addToWatched and addToWatchlist methods to store full details
+async addToWatched(movie: Movie): Promise<any> {
+  const watchedItem = {
+    title: movie.title,
+    poster: movie.poster || movie.image,
+    year: movie.year,
+    genre: typeof movie.genre === 'string' ? movie.genre : (movie.genre || ''),
+    cast: typeof movie.cast === 'string' ? movie.cast : (movie.cast || ''),
+    imdbID: movie.imdbID || movie.id,
+    rating: movie.rating || '',  // Add rating
+    runtime: movie.runtime || ''  // Add runtime
+  };
 
-    return await firstValueFrom(
-      this.http.post(`${this.apiUrl}/watched`, watchedItem, { headers: this.getHeaders() })
-    );
-  }
+  return await firstValueFrom(
+    this.http.post(`${this.apiUrl}/watched`, watchedItem, { headers: this.getHeaders() })
+  );
+}
+
+async addToWatchlist(movie: Movie): Promise<any> {
+  const watchlistItem = {
+    title: movie.title,
+    poster: movie.poster || movie.image,
+    year: movie.year,
+    genre: typeof movie.genre === 'string' ? movie.genre : (movie.genre || ''),
+    cast: typeof movie.cast === 'string' ? movie.cast : (movie.cast || ''),
+    imdbID: movie.imdbID || movie.id,
+    rating: movie.rating || '',  // Add rating
+    runtime: movie.runtime || ''  // Add runtime
+  };
+
+  return await firstValueFrom(
+    this.http.post(`${this.apiUrl}/watchlist`, watchlistItem, { headers: this.getHeaders() })
+  );
+}
+
+// Also update getWatchedMovies to include rating
+async getWatchedMovies(): Promise<Movie[]> {
+  const response = await firstValueFrom(
+    this.http.get<WatchedItem[]>(`${this.apiUrl}/watched`, { headers: this.getHeaders() })
+  );
+
+  return response.map(item => ({
+    id: item.imdbID,
+    imdbID: item.imdbID,
+    title: item.title,
+    year: item.year,
+    image: item.poster,
+    poster: item.poster,
+    description: `${item.title} (${item.year})`,
+    cast: item.cast || 'No cast information',
+    genre: item.genre,
+    rating: item.rating,  // Add this
+    runtime: item.runtime,  // Add this
+    watchedItemId: item.id
+  }));
+}
+
+// Update getWatchlist as well
+async getWatchlist(): Promise<Movie[]> {
+  const response = await firstValueFrom(
+    this.http.get<WatchlistItem[]>(`${this.apiUrl}/watchlist`, { headers: this.getHeaders() })
+  );
+
+  return response.map(item => ({
+    id: item.imdbID,
+    imdbID: item.imdbID,
+    title: item.title,
+    year: item.year,
+    image: item.poster,
+    poster: item.poster,
+    description: `${item.title} (${item.year})`,
+    cast: item.cast || 'No cast information',
+    genre: item.genre,
+    rating: item.rating,  // Add this
+    runtime: item.runtime,  // Add this
+    watchlistItemId: item.id
+  }));
+}
 
   async removeFromWatched(databaseId: number): Promise<void> {
     await firstValueFrom(
@@ -74,63 +143,10 @@ export class AppStorage {
     return watched.some(m => m.imdbID === imdbId);
   }
 
-  async addToWatchlist(movie: Movie): Promise<any> {
-    const watchlistItem = {
-      title: movie.title,
-      poster: movie.poster || movie.image,
-      year: movie.year,
-      genre: typeof movie.genre === 'string' ? movie.genre : (movie.genre || ''),
-      cast: typeof movie.cast === 'string' ? movie.cast : (movie.cast || ''),
-      imdbID: movie.imdbID || movie.id
-    };
-
-    return await firstValueFrom(
-      this.http.post(`${this.apiUrl}/watchlist`, watchlistItem, { headers: this.getHeaders() })
-    );
-  }
-
   async removeFromWatchlist(databaseId: number): Promise<void> {
     await firstValueFrom(
       this.http.delete(`${this.apiUrl}/watchlist/${databaseId}`, { headers: this.getHeaders() })
     );
-  }
-
-  async getWatchedMovies(): Promise<Movie[]> {
-    const response = await firstValueFrom(
-      this.http.get<WatchedItem[]>(`${this.apiUrl}/watched`, { headers: this.getHeaders() })
-    );
-
-    return response.map(item => ({
-      id: item.imdbID,  // For display, use imdbID as string ID
-      imdbID: item.imdbID,
-      title: item.title,
-      year: item.year,
-      image: item.poster,
-      poster: item.poster,
-      description: `${item.title} (${item.year})`,
-      cast: item.cast || 'No cast information',
-      genre: item.genre,
-      watchedItemId: item.id  // Store database ID for deletion
-    }));
-  }
-
-  async getWatchlist(): Promise<Movie[]> {
-    const response = await firstValueFrom(
-      this.http.get<WatchlistItem[]>(`${this.apiUrl}/watchlist`, { headers: this.getHeaders() })
-    );
-
-    return response.map(item => ({
-      id: item.imdbID,  // For display, use imdbID as string ID
-      imdbID: item.imdbID,
-      title: item.title,
-      year: item.year,
-      image: item.poster,
-      poster: item.poster,
-      description: `${item.title} (${item.year})`,
-      cast: item.cast || 'No cast information',
-      genre: item.genre,
-      watchlistItemId: item.id  // Store database ID for deletion
-    }));
   }
 
   async isInWatchlist(imdbId: string): Promise<boolean> {

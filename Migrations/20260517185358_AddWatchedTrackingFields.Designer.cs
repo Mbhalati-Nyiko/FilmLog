@@ -4,6 +4,7 @@ using FilmLog.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace FilmLog.Migrations
 {
     [DbContext(typeof(FilmLogDbContext))]
-    partial class FilmLogDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260517185358_AddWatchedTrackingFields")]
+    partial class AddWatchedTrackingFields
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -90,7 +93,7 @@ namespace FilmLog.Migrations
                     b.ToTable("Users");
                 });
 
-            modelBuilder.Entity("WatchedItem", b =>
+            modelBuilder.Entity("FilmLog.Models.WatchedItem", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -114,9 +117,6 @@ namespace FilmLog.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Rating")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Runtime")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<int>("TimesWatched")
@@ -143,7 +143,7 @@ namespace FilmLog.Migrations
                     b.ToTable("WatchedItems");
                 });
 
-            modelBuilder.Entity("WatchlistItem", b =>
+            modelBuilder.Entity("FilmLog.Models.WatchlistItem", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -166,12 +166,6 @@ namespace FilmLog.Migrations
                     b.Property<string>("Poster")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("Rating")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Runtime")
-                        .HasColumnType("nvarchar(max)");
-
                     b.Property<string>("Title")
                         .HasColumnType("nvarchar(max)");
 
@@ -190,7 +184,7 @@ namespace FilmLog.Migrations
                     b.ToTable("WatchlistItems");
                 });
 
-            modelBuilder.Entity("WatchedItem", b =>
+            modelBuilder.Entity("FilmLog.Models.WatchedItem", b =>
                 {
                     b.HasOne("FilmLog.Models.User", "User")
                         .WithMany()
@@ -201,7 +195,7 @@ namespace FilmLog.Migrations
                     b.Navigation("User");
                 });
 
-            modelBuilder.Entity("WatchlistItem", b =>
+            modelBuilder.Entity("FilmLog.Models.WatchlistItem", b =>
                 {
                     b.HasOne("FilmLog.Models.User", "User")
                         .WithMany()

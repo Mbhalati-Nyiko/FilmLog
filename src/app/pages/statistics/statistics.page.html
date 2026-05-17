@@ -1,13 +1,117 @@
 <ion-header [translucent]="true">
   <ion-toolbar>
-    <ion-title>statistics</ion-title>
+    <ion-title>Statistics</ion-title>
   </ion-toolbar>
 </ion-header>
 
 <ion-content [fullscreen]="true">
   <ion-header collapse="condense">
     <ion-toolbar>
-      <ion-title size="large">statistics</ion-title>
+      <ion-title size="large">Statistics Dashboard</ion-title>
     </ion-toolbar>
   </ion-header>
+
+  <div *ngIf="isLoading" class="loading-container">
+    <ion-spinner name="crescent"></ion-spinner>
+    <p>Loading statistics...</p>
+  </div>
+
+  <div *ngIf="!isLoading && stats" class="stats-container">
+
+    <!-- Summary Cards -->
+    <div class="summary-card">
+      <h3>Total Movies Watched</h3>
+      <p class="total-count">{{ stats.totalMoviesWatched || 0 }}</p>
+    </div>
+
+    <!-- Pie Chart Section -->
+    <div class="chart-section">
+      <h2>
+        <ion-icon name="pie-chart-outline" style="color: #8371fd;"></ion-icon>
+        Top Genres
+      </h2>
+      <div *ngIf="stats.topGenres?.length > 0" class="chart-container">
+        <canvas #pieChart></canvas>
+      </div>
+      <div *ngIf="!stats.topGenres?.length" class="empty-chart">
+        <ion-icon name="analytics-outline" style="font-size: 48px; margin-bottom: 16px; opacity: 0.5;"></ion-icon>
+        <p>No genre data available. Add some movies to your watched list!</p>
+      </div>
+    </div>
+
+    <!-- Bar Chart Section -->
+    <div class="chart-section">
+      <h2>
+        <ion-icon name="star-outline" style="color: #8371fd;"></ion-icon>
+        Top Rated Movies
+      </h2>
+      <div *ngIf="stats.topRatedMovies?.length > 0" class="chart-container">
+        <canvas #barChart></canvas>
+      </div>
+      <div *ngIf="!stats.topRatedMovies?.length" class="empty-chart">
+        <ion-icon name="star-half-outline" style="font-size: 48px; margin-bottom: 16px; opacity: 0.5;"></ion-icon>
+        <p>No rating data available. Add rated movies to your watched list!</p>
+      </div>
+    </div>
+
+    <!-- Most Rewatched Table -->
+    <div class="table-section">
+      <h2>
+        <ion-icon name="repeat-outline" style="color: #8371fd;"></ion-icon>
+        Most Rewatched Shows
+      </h2>
+      <div *ngIf="mostRewatchedData.length > 0">
+        <ion-grid class="stats-table">
+          <ion-row class="table-header">
+            <ion-col>Title</ion-col>
+            <ion-col>Year</ion-col>
+            <ion-col>Times Watched</ion-col>
+            <ion-col>Last Watched</ion-col>
+            <ion-col>Genre</ion-col>
+          </ion-row>
+          <ion-row *ngFor="let movie of mostRewatchedData" class="table-row" (click)="viewMovieDetails(movie)">
+            <ion-col data-label="Title">
+              <span class="movie-title-cell">{{ movie.title }}</span>
+            </ion-col>
+            <ion-col data-label="Year">{{ movie.year }}</ion-col>
+            <ion-col data-label="Times Watched">
+              <span class="watched-badge">{{ movie.timesWatched }}x</span>
+            </ion-col>
+            <ion-col data-label="Last Watched">{{ movie.lastWatched }}</ion-col>
+            <ion-col data-label="Genre">{{ movie.genre || 'N/A' }}</ion-col>
+          </ion-row>
+        </ion-grid>
+      </div>
+      <div *ngIf="mostRewatchedData.length === 0" class="empty-table">
+        <ion-icon name="film-outline" style="font-size: 48px; margin-bottom: 16px; opacity: 0.5;"></ion-icon>
+        <p>No rewatched shows yet. Watch a movie multiple times to see it here!</p>
+      </div>
+    </div>
+  </div>
 </ion-content>
+
+<!-- Tab Bar -->
+<div class="tabs-group">
+  <ion-tab-bar slot="bottom">
+    <ion-tab-button (click)="goToSearch()">
+      <ion-icon name="search-outline"></ion-icon>
+      <ion-label>Search</ion-label>
+    </ion-tab-button>
+    <ion-tab-button (click)="goToWatchlist()">
+      <ion-icon name="list-outline"></ion-icon>
+      <ion-label>Watchlist</ion-label>
+    </ion-tab-button>
+    <ion-tab-button (click)="goToWatched()">
+      <ion-icon name="checkmark-circle-outline"></ion-icon>
+      <ion-label>Watched</ion-label>
+    </ion-tab-button>
+    <ion-tab-button class="active-tab" (click)="goToStats()">
+      <ion-icon name="stats-chart-outline"></ion-icon>
+      <ion-label>Statistics</ion-label>
+    </ion-tab-button>
+    <ion-tab-button (click)="logOut()">
+      <ion-icon name="log-out-outline"></ion-icon>
+      <ion-label>Logout</ion-label>
+    </ion-tab-button>
+  </ion-tab-bar>
+</div>

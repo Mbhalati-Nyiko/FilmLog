@@ -7,126 +7,121 @@
       <div class="forms-wrap">
 
         <!-- Sign In Form -->
-<form class="sign-in-form" [formGroup]="loginForm" (ngSubmit)="onLogin()">
-  <div class="logo">
-    <div class="logo-image">
-      <img [src]="myImagePath" alt="FilmLog">
-      <h2>FilmLog</h2>
-    </div>
-    <div>
-      <p>Track your movie journey</p>
-    </div>
-  </div>
+        <form class="sign-in-form" [formGroup]="loginForm" (ngSubmit)="onLogin()">
+          <div class="logo">
+            <div class="logo-image">
+              <img [src]="myImagePath" alt="FilmLog">
+              <h2>FilmLog</h2>
+            </div>
+            <div>
+              <p>Track your movie journey</p>
+            </div>
+          </div>
 
-  <div class="heading">
-    <h2>Welcome Back</h2>
-    <h6>Not registered yet? </h6>
-    <a href="#" class="toggle" (click)="toggleForm(); $event.preventDefault()">Sign up</a>
-  </div>
+          <div class="heading">
+            <h2>Welcome Back</h2>
+            <h6>Not registered yet?</h6>
+            <a href="#" class="toggle" (click)="toggleForm(); $event.preventDefault()">Sign up</a>
+          </div>
 
-  <div class="actual-form">
-    <div class="input-wrap">
-      <ion-input
-        color="dark"
-        label="Username"
-        labelPlacement="floating"
-        type="text"
-        class="input-field"
-        formControlName="username"
-        required
-        autocomplete="off">
-      </ion-input>
-    </div>
+          <div class="actual-form">
+            <div class="input-wrap">
+              <ion-input
+                label="Username"
+                labelPlacement="floating"
+                type="text"
+                formControlName="username"
+                required
+                autocomplete="off">
+              </ion-input>
+            </div>
 
-    <div class="input-wrap">
-      <ion-input
-        color="dark"
-        label="Password"
-        labelPlacement="floating"
-        type="password"
-        class="input-field"
-        formControlName="password"
-        required>
-      </ion-input>
-    </div>
-  </div>
+            <div class="input-wrap">
+              <ion-input
+                label="Password"
+                labelPlacement="floating"
+                type="password"
+                formControlName="password"
+                required>
+              </ion-input>
+            </div>
+          </div>
 
-  <button type="submit" class="sign-btn" [disabled]="isLoading || loginForm.invalid">
-    {{ isLoading ? 'Signing in...' : 'Sign In' }}
-  </button>
+          <button type="submit" class="sign-btn" [disabled]="isLoading || loginForm.invalid">
+            {{ isLoading ? 'Signing in...' : 'Sign In' }}
+          </button>
 
-  <p class="text">
-    <a href="#" (click)="$event.preventDefault(); showUsers()">Debug Info</a>
-  </p>
-</form>
+          <p class="text">
+            <a href="#" (click)="$event.preventDefault(); showUsers()">Debug Info</a>
+          </p>
+        </form>
 
         <!-- Sign Up Form -->
-<form class="sign-up-form" [formGroup]="signupForm" (ngSubmit)="onRegister()">
-  <div class="logo">
-    <img [src]="myImagePath" alt="FilmLog">
-    <h4>FilmLog</h4>
-  </div>
+        <form class="sign-up-form" [formGroup]="signupForm" (ngSubmit)="onRegister()">
+          <div class="logo">
+            <div class="logo-image">
+              <img [src]="myImagePath" alt="FilmLog">
+              <h4>FilmLog</h4>
+            </div>
+          </div>
 
-  <div class="heading">
-    <h2>Get Started</h2>
-    <h6>Already have an account? </h6>
-    <a href="#" class="toggle" (click)="toggleForm(); $event.preventDefault()">Sign in</a>
-  </div>
+          <div class="heading">
+            <h2>Get Started</h2>
+            <h6>Already have an account?</h6>
+            <a href="#" class="toggle" (click)="toggleForm(); $event.preventDefault()">Sign in</a>
+          </div>
 
-  <div class="actual-form">
-    <div class="input-wrap">
-      <ion-input
-        color="dark"
-        label="Username"
-        labelPlacement="floating"
-        type="text"
-        class="input-field"
-        formControlName="username"
-        required
-        autocomplete="off">
-      </ion-input>
-    </div>
+          <div class="actual-form">
+            <div class="input-wrap">
+              <ion-input
+                label="Username"
+                labelPlacement="floating"
+                type="text"
+                formControlName="username"
+                required
+                autocomplete="off">
+              </ion-input>
+            </div>
 
-    <div class="input-wrap">
-      <ion-input
-        color="dark"
-        label="Email"
-        labelPlacement="floating"
-        type="email"
-        class="input-field"
-        formControlName="email"
-        required
-        autocomplete="off">
-      </ion-input>
-    </div>
+            <div class="input-wrap">
+              <ion-input
+                label="Email"
+                labelPlacement="floating"
+                type="email"
+                formControlName="email"
+                required
+                autocomplete="off">
+              </ion-input>
+            </div>
 
-    <div class="input-wrap">
-      <ion-input
-        color="dark"
-        label="Password"
-        labelPlacement="floating"
-        type="password"
-        class="input-field"
-        formControlName="password"
-        required>
-      </ion-input>
-    </div>
-  </div>
+            <div class="input-wrap">
+              <ion-input
+                label="Password"
+                labelPlacement="floating"
+                type="password"
+                formControlName="password"
+                required>
+              </ion-input>
+            </div>
+          </div>
 
-  <button type="submit" class="sign-btn" [disabled]="isLoading || signupForm.invalid">
-    {{ isLoading ? 'Signing up...' : 'Sign Up' }}
-  </button>
+          <button type="submit" class="sign-btn" [disabled]="isLoading || signupForm.invalid">
+            {{ isLoading ? 'Signing up...' : 'Sign Up' }}
+          </button>
 
-  <p class="text">
-    By signing up, you agree to our
-    <a href="#" (click)="$event.preventDefault()">Terms & Conditions</a>
-  </p>
-</form>
+          <p class="text">
+            By signing up, you agree to our
+            <a href="#" (click)="$event.preventDefault()">Terms & Conditions</a>
+          </p>
+        </form>
       </div>
 
       <!-- Carousel Section -->
       <div class="carousel">
-        <!-- Add carousel content here if needed -->
+        <!-- Optional carousel content -->
+        <div class="carousel-content">
+          <!-- You can add movie posters or quotes here -->
+        </div>
       </div>
 
     </div>

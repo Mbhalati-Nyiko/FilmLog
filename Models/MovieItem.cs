@@ -16,8 +16,13 @@ namespace FilmLog.Models
     [Required]
     public string? Year { get; set; }
 
+    [Required]
     public string? Genre { get; set; }
 
-    public string? Cast { get; set; }
+    [Required]
+    public string? Actors { get; set; }
+
+    [Required]
+    public string? Type { get; set; }
   }
 }

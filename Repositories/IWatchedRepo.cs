@@ -11,5 +11,6 @@ namespace FilmLog.Repositories
     Task<WatchedItem> UpdateAsync(WatchedItem watched);
     Task DeleteAsync(int id);
     Task<bool> ExistsAsync(int userId, string imdbId);
+    Task<WatchedItem?> GetByUserAndImdbId(int userId, string imdbId);
   }
 }

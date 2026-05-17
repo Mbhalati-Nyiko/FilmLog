@@ -5,12 +5,13 @@ import { Observable, throwError } from 'rxjs';
 import { catchError, map } from 'rxjs/operators';
 import { Movie, OmdbSearchResponse, OmdbMovieDetail } from 'src/app/models/movieModel';
 import { AuthenticationService } from './authentication-service';
+import { environment } from 'src/environments/environment';
 
 @Injectable({
   providedIn: 'root'
 })
 export class MovieData {
-  private apiUrl = 'http://localhost:5165/api';
+  private apiUrl = environment.apiUrl;
 
   constructor(
     private http: HttpClient,
@@ -50,7 +51,7 @@ export class MovieData {
     );
   }
 
-  getMovieDetails(imdbId: string): Observable<OmdbMovieDetail> {
+  getMovieDetails(imdbId?: string): Observable<OmdbMovieDetail> {
     return this.http.get<OmdbMovieDetail>(`${this.apiUrl}/movies/${imdbId}`, {
       headers: this.getHeaders()
     }).pipe(

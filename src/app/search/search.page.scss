@@ -1,184 +1,479 @@
+// search.page.scss - Performance optimized version
 @import url('https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap');
 
-body{
+* {
   font-family: 'Poppins', sans-serif;
 }
 
-.search-container {
-  background-color: black;
-  padding: 16px;
+ion-content {
+  --background: #0a0a0a;
 }
 
-.search-box {
-  margin-bottom: 20px;
-  background-color: black;
-}
-
-.loading-container {
-  text-align: center;
-  margin-top: 40px;
-
-  ion-spinner {
-    width: 48px;
-    height: 48px;
-    margin-bottom: 16px;
-  }
-}
-
-.error-message {
-  text-align: center;
-  margin-top: 20px;
-  padding: 16px;
-  background-color: rgba(var(--ion-color-danger-rgb), 0.1);
-  border-radius: 8px;
-}
-
-.search-results {
-  margin-top: 20px;
-
-  ion-item {
-    --background: black;
-    --padding-start: 0;
-    --inner-padding-end: 0;
-    margin-bottom: 16px;
-  }
-}
-
-.result-card {
-  width: 100%;
-  margin: 0;
-
-  .card-content {
-    display: flex;
-    flex-direction: row;
-    padding: 12px;
-
-    @media (max-width: 576px) {
-      flex-direction: column;
-    }
-  }
-
-  .poster-container {
-    flex-shrink: 0;
-    width: 120px;
-    height: 180px;
-    margin-right: 16px;
-
-    @media (max-width: 576px) {
-      width: 100%;
-      height: auto;
-      margin-right: 0;
-      margin-bottom: 16px;
-    }
-
-    img {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-      border-radius: 8px;
-    }
-  }
-
-  .movie-info {
-    flex: 1;
-
-    ion-card-header {
-      padding: 0 0 8px 0;
-    }
-
-    ion-card-content {
-      padding: 0;
-    }
-  }
-}
-
-.no-results {
-  text-align: center;
-  margin-top: 40px;
-  padding: 32px;
-}
-
-// Optional: Add animation for results
-.result-card {
-  transition: transform 0.2s ease;
-
-  &:hover {
-    transform: translateY(-2px);
-  }
-}
-
-// For Ionic Grid approach
-ion-col {
-  padding: 8px;
-}
-
-.result-card {
-  margin: 0;
-  height: 100%;
-}
-
-.tabs-group{
-  background-color: black;
-}
-
-ion-buttons ion-button{
-  --color: black;
-  --color-hover: #8371fd;
-  --background: white;
+ion-toolbar {
+  --background: #0a0a0a;
+  --color: white;
 }
 
 ion-content {
-  --background: black;
+  --background: #0a0a0a;
+  --padding-bottom: 80px;
 }
 
-.search-btn{
-  display: inline-block;
-  width: 96%;
-  height: 42px;
-  // background-color: #151111;
-  background-color: #8371fd;
-  // color: #fff;
-  color: #151111;
-  border: none;
-  cursor: pointer;
-  border-radius: 0.8rem;
-  font-size: 0.8rem;
-  margin-bottom: 2rem;
-  margin-left: 8px;
+// Simplified gradient background
+.search-container {
+  background: #0a0a0a;
+  min-height: 100%;
+  padding: 20px 16px 40px;
+  position: relative;
 }
 
-form{
+// Modern Search Box
+.search-box {
+  margin-bottom: 32px;
+  position: relative;
+  z-index: 2;
+
+  ion-searchbar {
+    --background: #1a1a1a;
+    --border-radius: 16px;
+    --box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+    --placeholder-color: rgba(255, 255, 255, 0.5);
+    --placeholder-opacity: 1;
+    --color: white;
+    --icon-color: #8371fd;
+    --clear-button-color: #8371fd;
+    padding: 0;
+    margin-bottom: 16px;
+
+    &::part(input) {
+      font-weight: 500;
+      letter-spacing: 0.3px;
+    }
+  }
+}
+
+.search-btn {
   width: 100%;
-  margin: 0 auto;
-  height: 100%;
+  height: 52px;
+  background: linear-gradient(135deg, #8371fd 0%, #6b5ce7 100%);
+  color: white;
+  border: none;
+  border-radius: 16px;
+  font-size: 1rem;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  text-transform: none;
+  transition: all 0.2s ease;
+  box-shadow: 0 4px 15px rgba(131, 113, 253, 0.3);
+
+  &:active {
+    transform: scale(0.98);
+  }
+}
+
+// Loading Animation
+.loading-container {
+  text-align: center;
+  padding: 60px 20px;
+  animation: fadeIn 0.3s ease;
+
+  p {
+    color: rgba(255, 255, 255, 0.7);
+    margin-top: 20px;
+    font-size: 0.9rem;
+    letter-spacing: 0.5px;
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+// Error Message
+// .error-message {
+//   text-align: center;
+//   padding: 20px;
+//   background: #2d1a1a;
+//   border-radius: 16px;
+//   border-left: 4px solid #f44336;
+//   margin: 20px 0;
+//   font-weight: 500;
+//   color: #ff6b6b;
+//   animation: slideIn 0.3s ease;
+// }
+
+// @keyframes slideIn {
+//   from {
+//     opacity: 0;
+//     transform: translateX(-20px);
+//   }
+//   to {
+//     opacity: 1;
+//     transform: translateX(0);
+//   }
+// }
+
+.error-message{
+  text-align: center;
+  align-items: center;
+  padding: 60px 20px;
+  animation: fadeIn 0.3s ease;
+
+  .error-message-icon {
+    font-size: 64px;
+    color: #8371fd;
+    margin-bottom: 20px;
+    opacity: 0.7;
+  }
+
+  ion-text {
+    h3 {
+      color: white;
+      margin-bottom: 10px;
+    }
+
+    p {
+      color: #999;
+    }
+  }
+}
+
+
+// Vertical List Styles
+.search-results {
+  margin-top: 24px;
+  animation: fadeIn 0.3s ease;
+}
+
+.vertical-list {
   display: flex;
   flex-direction: column;
-  justify-content: space-evenly;
-  padding-bottom: 20px;
+  gap: 16px;
 }
 
-ion-button{
-  --background: #8371fd;
+// Movie Item Card
+.movie-item {
+  display: flex;
+  gap: 16px;
+  background: #1a1a1a;
+  border-radius: 16px;
+  overflow: hidden;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border: 1px solid #2a2a2a;
+  padding: 12px;
+
+  &:active {
+    transform: scale(0.99);
+    background: #222222;
+  }
+
+  @media (hover: hover) {
+    &:hover {
+      background: #222222;
+      border-color: #8371fd;
+      transform: translateX(4px);
+    }
+  }
 }
 
-ion-item{
-  --background: black;
+// Poster Container
+.movie-poster {
+  flex-shrink: 0;
+  width: 80px;
+  height: 120px;
+  border-radius: 12px;
+  overflow: hidden;
+  background: linear-gradient(135deg, #1a1a2e, #0a0a0a);
+
+  ion-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
 }
 
-ion-toolbar{
-  --background: black;
-  // --padding-top: 20px;
+// Movie Details
+.movie-details {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 6px;
 }
 
-ion-tab-bar{
-  --background: black;
+.movie-title {
+  font-size: 1rem;
+  font-weight: 600;
+  color: white;
+  margin: 0;
+  line-height: 1.3;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
 }
 
-ion-tab-button{
-  --color: white;
-  --background: black;
+.movie-year {
+  font-size: 0.75rem;
+  color: #8371fd;
+  margin: 0;
+  font-weight: 500;
 }
 
-.active-tab{
-  --background: #8371fd;
+.movie-cast {
+  font-size: 0.7rem;
+  color: #999;
+  margin: 0;
+  line-height: 1.4;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+// Action Icon
+.movie-action {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  color: #666;
+
+  ion-icon {
+    font-size: 20px;
+    transition: transform 0.2s ease;
+  }
+
+  .movie-item:hover & ion-icon {
+    color: #8371fd;
+    transform: translateX(4px);
+  }
+}
+
+// Responsive adjustments
+@media (min-width: 768px) {
+  .movie-poster {
+    width: 100px;
+    height: 150px;
+  }
+
+  .movie-title {
+    font-size: 1.1rem;
+  }
+
+  .movie-year {
+    font-size: 0.85rem;
+  }
+
+  .movie-cast {
+    font-size: 0.8rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  .search-results {
+    max-width: 800px;
+    margin: 24px auto 0;
+  }
+}
+
+// No Results
+.on-search {
+  text-align: center;
+  padding: 60px 20px;
+  animation: fadeIn 0.3s ease;
+
+  .on-search-icon {
+    font-size: 64px;
+    color: #8371fd;
+    margin-bottom: 20px;
+    opacity: 0.7;
+  }
+
+  ion-text {
+    h3 {
+      color: white;
+      margin-bottom: 10px;
+    }
+
+    p {
+      color: #999;
+    }
+  }
+}
+
+// Initial State
+.initial-state {
+  min-height: 400px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+
+  .initial-icon {
+    font-size: 80px;
+    color: #8371fd;
+    margin-bottom: 20px;
+    opacity: 0.5;
+  }
+
+  h3 {
+    color: white;
+    margin-bottom: 10px;
+    font-size: 1.5rem;
+  }
+
+  p {
+    color: #999;
+    font-size: 0.9rem;
+  }
+}
+
+// Suggestion text
+.suggestion-text {
+  margin-top: 15px;
+  font-size: 0.85rem;
+  color: #666;
+}
+
+// Infinite Scroll Styling
+ion-infinite-scroll-content {
+  --color: #8371fd;
+
+  .infinite-loading-text {
+    color: #999;
+    font-size: 0.85rem;
+  }
+}
+
+// Tab Bar Styling
+.tabs-group {
+  background: #0a0a0a;
+  border-top: 1px solid #1a1a1a;
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 100;
+}
+
+ion-tab-bar {
+  --background: #0a0a0a;
+  border-top: none;
+  padding: 8px 0 12px;
+  height: 70px;
+}
+
+ion-tab-button {
+  --color: #666;
+  --color-selected: #8371fd;
+  --background: transparent;
+  --background-focused: transparent;
+  font-size: 0.75rem;
+  font-weight: 500;
+
+  ion-icon {
+    font-size: 24px;
+    margin-bottom: 4px;
+  }
+}
+
+.active-tab {
+  --color: #8371fd;
+  --background: rgba(131, 113, 253, 0.1);
+  border-radius: 12px;
+  margin: 0 4px;
+}
+
+// Custom Scrollbar
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: #1a1a1a;
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #8371fd;
+  border-radius: 3px;
+
+  &:hover {
+    background: #6b5ce7;
+  }
+}
+
+// Responsive Design
+@media (min-width: 768px) {
+  .results-grid {
+    ion-col {
+      size: 4;
+    }
+  }
+
+  .search-box {
+    display: flex;
+    gap: 12px;
+    align-items: flex-start;
+
+    ion-searchbar {
+      flex: 1;
+      margin-bottom: 0;
+    }
+
+    .search-btn {
+      width: auto;
+      min-width: 120px;
+      margin-bottom: 0;
+    }
+  }
+}
+
+@media (min-width: 1024px) {
+  .results-grid {
+    ion-col {
+      size: 3;
+    }
+  }
+
+  .search-container {
+    max-width: 1400px;
+    margin: 0 auto;
+  }
+}
+
+// Optional: Skeleton Loading (if you want to add it)
+.skeleton-card {
+  background: #1a1a1a;
+  border-radius: 20px;
+  overflow: hidden;
+  animation: pulse 1.5s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 0.5;
+  }
+  50% {
+    opacity: 0.8;
+  }
+}
+
+// Simple card press effect for mobile
+.result-card {
+  &:active {
+    transform: scale(0.97);
+    transition: transform 0.05s;
+  }
 }

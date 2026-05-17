@@ -1,3 +1,19 @@
+// watchlist.page.scss
+@import url('https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap');
+
+* {
+  font-family: 'Poppins', sans-serif;
+}
+
+ion-content {
+  --background: #0a0a0a;
+}
+
+ion-toolbar {
+  --background: #0a0a0a;
+  --color: white;
+}
+
 // Empty State
 .empty-state {
   display: flex;
@@ -7,24 +23,43 @@
   text-align: center;
   height: 70vh;
   padding: 20px;
+  animation: fadeIn 0.3s ease;
 
   .empty-icon {
     font-size: 80px;
-    color: var(--ion-color-medium);
+    color: #8371fd;
     margin-bottom: 20px;
+    opacity: 0.7;
   }
 
   h3 {
-    font-size: 24px;
+    font-size: 1.5rem;
     font-weight: 600;
     margin: 0 0 10px 0;
-    color: var(--ion-text-color);
+    color: white;
   }
 
   p {
-    font-size: 16px;
-    color: var(--ion-color-medium);
-    margin: 0 0 20px 0;
+    font-size: 0.9rem;
+    color: #999;
+    margin: 0 0 24px 0;
+  }
+
+  ion-button {
+    --border-radius: 12px;
+    --padding-start: 24px;
+    --padding-end: 24px;
+    --padding-top: 12px;
+    --padding-bottom: 12px;
+    --border-color: #8371fd;
+    --color: #8371fd;
+    font-weight: 600;
+    text-transform: none;
+    letter-spacing: 0.3px;
+
+    &:active {
+      transform: scale(0.98);
+    }
   }
 }
 
@@ -35,46 +70,58 @@
   align-items: center;
   justify-content: center;
   height: 70vh;
+  animation: fadeIn 0.3s ease;
 
   ion-spinner {
     width: 48px;
     height: 48px;
+    color: #8371fd;
     margin-bottom: 16px;
   }
 
   p {
-    color: var(--ion-color-medium);
-    font-size: 16px;
+    color: #999;
+    font-size: 0.9rem;
   }
 }
 
 // Watchlist Container
 .watchlist-container {
-  padding: 8px 0;
+  padding: 16px;
 }
 
-// Watchlist Items
+// Watchlist Items - Matching search page vertical list
 .watchlist-item {
-  --padding-start: 12px;
-  --padding-end: 8px;
-  --padding-top: 12px;
-  --padding-bottom: 12px;
-  --inner-padding-end: 8px;
-  margin-bottom: 2px;
-  transition: background-color 0.2s ease;
+  background: #1a1a1a;
+  border-radius: 16px;
+  margin-bottom: 12px;
+  padding: 16px;
+  display: flex;
+  gap: 16px;
+  transition: all 0.2s ease;
+  border: 1px solid #2a2a2a;
+  cursor: pointer;
+  position: relative;
 
   &:hover {
-    --background: var(--ion-color-light);
+    background: #222222;
+    transform: translateX(4px);
+    border-color: #8371fd;
+  }
+
+  &:active {
+    transform: scale(0.99);
   }
 
   // Poster thumbnail
   .item-poster {
-    width: 60px;
-    height: 90px;
-    margin-right: 12px;
-    border-radius: 8px;
+    flex-shrink: 0;
+    width: 80px;
+    height: 120px;
+    border-radius: 12px;
     overflow: hidden;
-    background-color: var(--ion-color-light);
+    background: linear-gradient(135deg, #1a1a2e, #0a0a0a);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
 
     ion-img {
       width: 100%;
@@ -85,31 +132,72 @@
 
   // Movie info
   .movie-info {
+    flex: 1;
+
     h2 {
-      font-size: 16px;
+      font-size: 1rem;
       font-weight: 600;
       margin: 0 0 4px 0;
-      color: var(--ion-text-color);
+      color: white;
+      letter-spacing: -0.3px;
     }
 
-    p {
-      font-size: 13px;
-      color: var(--ion-color-medium);
-      margin: 2px 0;
+    .movie-year {
+      font-size: 0.75rem;
+      color: #8371fd;
+      margin: 4px 0;
+      font-weight: 500;
     }
 
-    .description {
-      font-size: 12px;
-      color: var(--ion-color-medium-shade);
-      margin-top: 4px;
+    .movie-cast {
+      font-size: 0.7rem;
+      color: #999;
+      margin: 6px 0 0 0;
       line-height: 1.4;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+  }
+
+  // Button area
+  .button-area {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    justify-content: center;
+
+    ion-button {
+      --border-radius: 10px;
+      font-weight: 600;
+      text-transform: none;
+      font-size: 0.7rem;
+      letter-spacing: 0.3px;
+      margin: 0;
+      white-space: nowrap;
+
+      &[color="dark"] {
+        --color: #8371fd;
+      }
+
+      &[color="light"] {
+        --background: #8371fd;
+        --background-hover: #6b5ce7;
+        --color: white;
+      }
+
+      &:active {
+        transform: scale(0.96);
+      }
     }
   }
 
   // Remove button
   .remove-btn {
-    margin: 0;
-    height: 36px;
+    position: absolute;
+    top: 12px;
+    right: 12px;
 
     ion-icon {
       font-size: 20px;
@@ -123,30 +211,112 @@
   margin-top: 8px;
 
   ion-button {
-    --border-radius: 8px;
-    --padding-top: 12px;
-    --padding-bottom: 12px;
+    --border-radius: 12px;
+    --padding-top: 14px;
+    --padding-bottom: 14px;
+    --border-color: #f44336;
+    --color: #f44336;
+    font-weight: 600;
+    text-transform: none;
+    letter-spacing: 0.3px;
+
+    &:active {
+      transform: scale(0.98);
+    }
   }
 }
 
-// Optional: Add swipe to delete (requires hammerjs)
-// For swipe functionality, you would need to install hammerjs and add (ionSwipe) event
+// Tab Bar - Matching search page
+.tabs-group {
+  background: #0a0a0a;
+  border-top: 1px solid #1a1a1a;
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 100;
+}
+
+ion-tab-bar {
+  --background: #0a0a0a;
+  border-top: none;
+  padding: 8px 0 12px;
+  height: 70px;
+}
+
+ion-tab-button {
+  --color: #666;
+  --color-selected: #8371fd;
+  --background: transparent;
+  --background-focused: transparent;
+  font-size: 0.75rem;
+  font-weight: 500;
+
+  ion-icon {
+    font-size: 24px;
+    margin-bottom: 4px;
+  }
+}
+
+.active-tab {
+  --color: #8371fd;
+  --background: rgba(131, 113, 253, 0.1);
+  border-radius: 12px;
+  margin: 0 4px;
+}
+
+// Animations
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
 
 // Responsive adjustments
 @media (max-width: 576px) {
+  .watchlist-container {
+    padding: 12px;
+  }
+
   .watchlist-item {
+    flex-wrap: wrap;
+    padding: 12px;
+
     .item-poster {
-      width: 50px;
-      height: 75px;
+      width: 60px;
+      height: 90px;
     }
 
     .movie-info {
+      flex: 1;
+
       h2 {
-        font-size: 14px;
+        font-size: 0.9rem;
       }
 
-      p {
-        font-size: 12px;
+      .movie-year {
+        font-size: 0.7rem;
+      }
+
+      .movie-cast {
+        font-size: 0.65rem;
+      }
+    }
+
+    .button-area {
+      width: 100%;
+      flex-direction: row;
+      margin-top: 8px;
+      padding-left: 0;
+
+      ion-button {
+        flex: 1;
+        font-size: 0.7rem;
       }
     }
   }
@@ -157,33 +327,50 @@
     }
 
     h3 {
-      font-size: 20px;
+      font-size: 1.2rem;
     }
   }
 }
 
-ion-tab-bar{
-  --background: black;
+@media (min-width: 768px) {
+  .watchlist-container {
+    max-width: 900px;
+    margin: 0 auto;
+  }
+
+  .watchlist-item {
+    .item-poster {
+      width: 100px;
+      height: 150px;
+    }
+
+    .movie-info {
+      h2 {
+        font-size: 1.1rem;
+      }
+    }
+  }
 }
 
-ion-tab-button{
-  --color: white;
-  --background: black;
+// Custom scrollbar
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
 }
 
-.active-tab{
-  --background: #8371fd;
+::-webkit-scrollbar-track {
+  background: #1a1a1a;
+  border-radius: 3px;
 }
 
-ion-item{
-  --background: black;
-}
+::-webkit-scrollbar-thumb {
+  background: #8371fd;
+  border-radius: 3px;
 
-ion-toolbar{
-  --background: black;
-  // --padding-top: 20px;
+  &:hover {
+    background: #6b5ce7;
+  }
 }
-
-ion-content {
-  --background: black;
+.item-content{
+  width: 60%;
 }

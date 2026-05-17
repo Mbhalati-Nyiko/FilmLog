@@ -23,89 +23,93 @@
 
     <!-- Floating Action Buttons -->
     <div class="floating-buttons">
-
       <ion-button
         [color]="isWatched ? 'success' : 'light'"
         (click)="toggleWatched()"
-        class="action-btn">
-        <ion-icon [name]="isWatched ? 'checkmarkCircle' : 'checkmarkCircleOutline'" slot="start"></ion-icon>
-        {{ isWatched ? 'Watched' : 'Mark as Watched' }}
+        class="action-btn"
+        expand="block">
+        <ion-icon [name]="isWatched ? 'checkmark-circle' : 'checkmark-circle-outline'" slot="start"></ion-icon>
+        {{ isWatched ? 'Watched' : 'Mark Watched' }}
       </ion-button>
 
       <ion-button
         [color]="isInWatchlist ? 'primary' : 'light'"
         (click)="toggleWatchlist()"
-        class="action-btn">
-        <ion-icon [name]="isInWatchlist ? 'bookmark' : 'bookmarkOutline'" slot="start"></ion-icon>
-        {{ isInWatchlist ? 'In Watchlist' : 'Add to Watchlist' }}
+        class="action-btn"
+        expand="block">
+        <ion-icon [name]="isInWatchlist ? 'bookmark' : 'bookmark-outline'" slot="start"></ion-icon>
+        {{ isInWatchlist ? 'In Watchlist' : 'Add to List' }}
       </ion-button>
-
-
     </div>
   </div>
 
   <!-- Movie Info Section -->
   <div class="movie-info-section">
-
-    <!-- Title and Meta -->
+    <!-- Title -->
     <div class="title-section">
       <h1 class="movie-title">{{ movie.title }}</h1>
-
     </div>
 
-    <!-- Genre Chips -->
-    <!-- <div class="genres-section" *ngIf="movie.genre?.length">
-      <ion-chip *ngFor="let genre of movie.genre" color="medium" outline>
-        {{ genre }}
+    <!-- Movie Meta (Year, Runtime, Rating) -->
+    <div class="movie-meta">
+      <ion-chip *ngIf="movie.year">
+        <ion-icon name="calendar-outline"></ion-icon>
+        <ion-label>{{ movie.year }}</ion-label>
       </ion-chip>
-    </div> -->
-
-    <div class="movie-cast-description">
-      <div class="movie-meta">
-        <ion-chip *ngIf="movie.year">
-          <!-- <ion-icon name="calendarOutline"></ion-icon> -->
-          <ion-label>{{ movie.year }}</ion-label>
-        </ion-chip>
-        <!-- <ion-chip *ngIf="movie.runtime">
-          <ion-icon name="timeOutline"></ion-icon>
-          <ion-label>{{ movie.runtime }}</ion-label>
-        </ion-chip>
-        <ion-chip *ngIf="movie.rating">
-          <ion-icon name="star"></ion-icon>
-          <ion-label>{{ movie.rating }}/10</ion-label>
-        </ion-chip> -->
-      </div>
-      <div class="description-heading">
-        <h3>Cast</h3>
-      </div>
-      <div class="description-text" >
-        <p>{{ getSafeDescription(movie.description) }}</p>
-      </div>
+      <ion-chip *ngIf="movie.runtime">
+        <ion-icon name="time-outline"></ion-icon>
+        <ion-label>{{ movie.runtime }}</ion-label>
+      </ion-chip>
+      <ion-chip *ngIf="movie.rating">
+        <ion-icon name="star"></ion-icon>
+        <ion-label>{{ movie.rating }}/10</ion-label>
+      </ion-chip>
     </div>
 
-    <!-- Description - Safe display -->
-    <!-- <div class="description-section">
+    <!-- Description -->
+    <div class="description-heading">
       <h3>Synopsis</h3>
+    </div>
+    <div class="description-text">
       <p>{{ getSafeDescription(movie.description) }}</p>
-    </div> -->
+    </div>
 
     <!-- Director -->
-    <!-- <div class="director-section" *ngIf="movie.director">
+    <div class="director-section" *ngIf="movie.director">
       <h3>Director</h3>
       <p>{{ movie.director }}</p>
-    </div> -->
+    </div>
 
-    <!-- Cast -->
-    <!-- <div class="cast-section" *ngIf="movie.cast?.length">
+    <!-- Cast Section - Matching vertical list style -->
+    <div class="cast-section" *ngIf="movie.cast">
       <h3>Cast</h3>
       <div class="cast-list">
-        <ion-chip *ngFor="let actor of movie.cast" color="light">
-          <ion-icon name="peopleOutline"></ion-icon>
-          <ion-label>{{ actor }}</ion-label>
-        </ion-chip>
+        <div class="cast-item" *ngFor="let actor of getCastArray(movie.cast)">
+          <div class="cast-icon">
+            <ion-icon name="person-outline"></ion-icon>
+          </div>
+          <p class="cast-name">{{ actor }}</p>
+        </div>
       </div>
-    </div> -->
+    </div>
+
+    <!-- Rating Section (if available) -->
+    <div class="rating-section" *ngIf="movie.rating">
+      <div class="rating-star">
+        <ion-icon name="star"></ion-icon>
+      </div>
+      <div class="rating-score">
+        <span class="rating-value">{{ movie.rating }}</span>
+        <span class="rating-max">/10</span>
+      </div>
+      <div class="rating-label">
+        IMDb Rating
+      </div>
+    </div>
   </div>
+
+  <!-- Add this at the end of the movie-info-section -->
+<div class="scroll-spacer"></div>
 
   <!-- Toast Notifications -->
   <ion-toast
@@ -115,23 +119,28 @@
   </ion-toast>
 </ion-content>
 
+<!-- Tab Bar -->
 <div class="tabs-group">
-      <ion-tab-bar slot="bottom">
+  <ion-tab-bar slot="bottom">
     <ion-tab-button (click)="goToSearch()">
       <ion-icon name="search-outline"></ion-icon>
-      Search
+      <ion-label>Search</ion-label>
     </ion-tab-button>
     <ion-tab-button (click)="goToWatchlist()">
       <ion-icon name="list-outline"></ion-icon>
-      Watchlist
+      <ion-label>Watchlist</ion-label>
     </ion-tab-button>
     <ion-tab-button (click)="goToWatched()">
       <ion-icon name="checkmark-circle-outline"></ion-icon>
-      Watched
+      <ion-label>Watched</ion-label>
+    </ion-tab-button>
+    <ion-tab-button (click)="goToStats()">
+      <ion-icon name="stats-chart-outline"></ion-icon>
+      <ion-label>Statistics</ion-label>
     </ion-tab-button>
     <ion-tab-button (click)="logOut()">
       <ion-icon name="log-out-outline"></ion-icon>
-      Logout
+      <ion-label>Logout</ion-label>
     </ion-tab-button>
-    </ion-tab-bar>
+  </ion-tab-bar>
 </div>

@@ -14,7 +14,8 @@ namespace FilmLog.Services
         Poster = detail.Poster,
         Year = detail.Year,
         Genre = detail.Genre,
-        Cast = detail.Actors  // Map Actors to Cast
+        Actors = detail.Actors,  // Map Actors to Cast
+        Type = detail.Type,
       };
     }
 

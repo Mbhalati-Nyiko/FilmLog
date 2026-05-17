@@ -49,4 +49,5 @@ export interface OmdbMovieDetail {
   Poster: string;
   imdbRating: string;
   imdbID: string;
+  Response: string;
 }

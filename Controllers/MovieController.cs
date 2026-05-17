@@ -126,6 +126,21 @@ namespace FilmLog.Controllers
       return int.Parse(userIdClaim?.Value ?? "0");
     }
 
+    [HttpGet("test-details")]
+    [AllowAnonymous]
+    public async Task<IActionResult> TestDetails([FromQuery] string imdbId = "tt1375666")  // Inception
+    {
+      var result = await _omdbService.GetMovieDetailsAsync(imdbId);
+      return Ok(new
+      {
+        hasGenre = !string.IsNullOrEmpty(result?.Genre),
+        genre = result?.Genre,
+        hasActors = !string.IsNullOrEmpty(result?.Actors),
+        actors = result?.Actors,
+        fullResponse = result
+      });
+    }
+
     // Add to MovieController.cs for testing
     //[HttpGet("test-omdb")]
     //[AllowAnonymous] // Remove authorization for testing

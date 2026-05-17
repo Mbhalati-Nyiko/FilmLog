@@ -41,6 +41,10 @@ export class WatchlistPage implements OnInit {
     this.router.navigate(['/login']);
   }
 
+ goToStats() {
+  this.router.navigate(['/statistics']);
+ }
+
   async ngOnInit() {
     this.checkAuth();
   }

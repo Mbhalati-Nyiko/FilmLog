@@ -4,6 +4,7 @@ using FilmLog.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace FilmLog.Migrations
 {
     [DbContext(typeof(FilmLogDbContext))]
-    partial class FilmLogDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260517192023_AddRatingAndRuntimeToWatched")]
+    partial class AddRatingAndRuntimeToWatched
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

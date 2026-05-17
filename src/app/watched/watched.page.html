@@ -32,14 +32,11 @@ Browse Movies
 
 <!-- Watchlist Items -->
 <div *ngIf="!isLoading && watched.length > 0" class="watchlist-container">
-<ion-list lines="full">
-<ion-item
-*ngFor="let movie of watched"
 
-class="watchlist-item"
-button>
+<div *ngFor="let movie of watched" class="watchlist-item">
 
-<!-- Poster Thumbnail -->
+  <div>
+    <!-- Poster Thumbnail -->
 <div class="item-poster" slot="start">
 <ion-img
 [src]="movie.image"
@@ -47,20 +44,24 @@ button>
 (ionError)="movie.image = 'assets/default-poster.jpg'">
 </ion-img>
 </div>
+  </div>
 
-<!-- Movie Info -->
-<ion-label class="movie-info">
-<h2>{{ movie.title }}</h2>
-<p *ngIf="movie.year">Released: {{ movie.year }}</p>
-<p class="description">{{ getShortDescription(movie.cast) }}</p>
-</ion-label>
+  <div class="item-content">
+        <div class="movie-info" (click)="viewMovieDetails(movie)">
+          <h2>{{ movie.title }}</h2>
+          <p class="movie-year">{{ movie.year }}</p>
+          <p class="movie-cast">{{ getShortDescription(movie.cast) }}</p>
+        </div>
 
-<ion-button
-slot="end"
-fill="clear"
-color="dark"
-(click)="viewMovieDetails(movie)"
->View Details</ion-button>
+        <div class="button-area">
+          <ion-button fill="clear" color="dark" (click)="viewMovieDetails(movie)">
+            Details
+          </ion-button>
+          <ion-button fill="solid" size="small" color="light" (click)="moveToWatched(movie)">
+            <ion-icon name="reload-outline" slot="start"></ion-icon>
+            Rewatch
+          </ion-button>
+        </div>
 
 <!-- Remove Button -->
 <!-- Update the remove button to pass the full movie object -->
@@ -72,8 +73,18 @@ color="danger"
 class="remove-btn">
 <ion-icon name="trash-outline" slot="icon-only"></ion-icon>
 </ion-button>
-</ion-item>
-</ion-list>
+
+  </div>
+
+</div>
+
+
+
+
+
+
+
+
 
 <!-- Optional: Clear All Button -->
 <div class="clear-all-container" *ngIf="watched.length > 0">
@@ -103,6 +114,10 @@ Watchlist
 <ion-tab-button class="active-tab" (click)="goToWatched()">
 <ion-icon name="checkmark-circle-outline"></ion-icon>
 Watched
+</ion-tab-button>
+<ion-tab-button (click)="goToStats()">
+<ion-icon name="stats-chart-outline"></ion-icon>
+Statistics
 </ion-tab-button>
 <ion-tab-button (click)="logOut()">
 <ion-icon name="log-out-outline"></ion-icon>

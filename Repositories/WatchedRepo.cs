@@ -64,5 +64,11 @@ namespace FilmLog.Repositories
       return await _context.WatchedItems
           .AnyAsync(w => w.UserId == userId && w.ImdbID == imdbId);  // Fixed property name
     }
+
+    public async Task<WatchedItem?> GetByUserAndImdbId(int userId, string imdbId)
+    {
+      return await _context.WatchedItems
+          .FirstOrDefaultAsync(w => w.UserId == userId && w.ImdbID == imdbId);  // Fixed property name
+    }
   }
 }

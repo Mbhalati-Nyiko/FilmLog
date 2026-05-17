@@ -1,108 +1,124 @@
 <ion-header [translucent]="true">
-<ion-toolbar>
-<ion-title size="large">Search Movies</ion-title>
-<ion-progress-bar *ngIf="isLoading" type="indeterminate"></ion-progress-bar>
-</ion-toolbar>
+  <ion-toolbar>
+    <ion-title size="large" class="ion-text-center" color="tertiary">Search Movies</ion-title>
+    <ion-progress-bar *ngIf="isLoading" type="indeterminate"></ion-progress-bar>
+  </ion-toolbar>
 </ion-header>
 
 <ion-content [fullscreen]="false">
-<ion-header collapse="condense">
-<ion-toolbar>
-<ion-title size="large">Search</ion-title>
-</ion-toolbar>
-</ion-header>
-
 <div class="search-container">
-<div class="search-box">
-<ion-searchbar color="dark"
-animated="true"
-placeholder="Search for movies..."
-[(ngModel)]="searchQuery"
-name="searchQuery"
-(ionClear)="clearSearch()">
-</ion-searchbar>
-<ion-button class="search-btn" (click)="onSearch()">Search</ion-button>
+
+  <!-- Search box to contain the search functionality -->
+  <div class="search-box">
+
+    <!-- Searchbar for looking for movies -->
+    <ion-searchbar color="light" animated="true"
+    placeholder="Search for movies..."
+    [(ngModel)]="searchQuery"
+    name="searchQuery"
+    (ionClear)="clearSearch()"
+    show-cancel-button="focus">
+    </ion-searchbar>
+
+    <!-- Button to active search as opposed to search on input -->
+    <ion-button class="search-btn" (click)="onSearch()" [disabled]="isLoading">
+    Search
+    </ion-button>
+
+  </div>
+
+  <!-- Loading Spinner -->
+  <div *ngIf="isLoading && searchResults.length === 0" class="loading-container">
+  <app-loader></app-loader>
+  <p>Searching for movies...</p>
+  </div>
+
+  <!-- Error Message -->
+  <ion-text *ngIf="errorMessage && !isLoading" color="danger" class="error-message">
+    <div>
+      <ion-icon name="alert-circle-outline" class="error-message-icon"></ion-icon>
+    </div>
+    <ion-text color="medium">
+    <h3> {{errorMessage}} </h3>
+    <p>Failed to find the movie "{{ searchQuery }}"</p>
+    <p class="suggestion-text">Make sure you spell the title of the movie correctly.</p>
+    </ion-text>
+  </ion-text>
+
+  <!-- Search Results - Vertical List -->
+  <div *ngIf="!isLoading && searchResults.length > 0" class="search-results">
+    <div class="vertical-list">
+      <div class="movie-item" *ngFor="let result of searchResults" (click)="viewMovieDetails(result)">
+
+        <div class="movie-poster">
+          <ion-img [src]="result.image" [alt]="result.title" (ionError)="result.image = 'assets/default-poster.jpg'"></ion-img>
+        </div>
+
+        <div class="movie-details">
+          <h3 class="movie-title">{{ result.title }}</h3>
+          <p class="movie-year">{{ result.year }}</p>
+
+          <p class="movie-cast">{{ truncateText(result.cast, 60) }}</p>
+
+        </div>
+
+        <div class="movie-action">
+          <ion-icon name="chevron-forward-outline"></ion-icon>
+        </div>
+    </div>
+  </div>
+
+  <!-- Infinite Scroll -->
+  <ion-infinite-scroll *ngIf="hasMoreResults" threshold="100px" (ionInfinite)="loadMoreResults($event)">
+    <ion-infinite-scroll-content loadingSpinner="bubbles" loadingText="Loading more movies...">
+    </ion-infinite-scroll-content>
+  </ion-infinite-scroll>
+
 </div>
 
-<!-- (ionInput)="onSearch()" -->
-
-<!-- Loading Spinner -->
-<div *ngIf="isLoading && searchResults.length === 0" class="loading-container">
-<!-- <ion-spinner name="crescent"></ion-spinner> -->
-<app-loader></app-loader>
-<p>Searching for movies...</p>
-</div>
-
-<!-- Error Message -->
-<ion-text *ngIf="errorMessage && !isLoading" color="danger">
-<p class="error-message">{{ errorMessage }}</p>
-</ion-text>
-
-<!-- Search Results -->
-<div *ngIf="!isLoading && searchResults.length > 0" class="search-results">
-<ion-grid class="results-grid">
-<ion-row>
-<ion-col size="6" *ngFor="let result of searchResults">
-<ion-card class="result-card" (click)="viewMovieDetails(result)">
-<div class="poster-container">
-<ion-img [src]="result.image"
-[alt]="result.title"
-(ionError)="result.image = 'assets/default-poster.jpg'">
-</ion-img>
-</div>
-<ion-card-header>
-<ion-card-title class="movie-title">{{ result.title }}</ion-card-title>
-<ion-card-subtitle>{{ result.year }}</ion-card-subtitle>
-<p>{{result.cast}}</p>
-</ion-card-header>
-</ion-card>
-</ion-col>
-</ion-row>
-</ion-grid>
-
-<!-- Infinite Scroll -->
-<ion-infinite-scroll *ngIf="hasMoreResults"
-threshold="100px"
-(ionInfinite)="loadMoreResults($event)">
-<ion-infinite-scroll-content loadingSpinner="bubbles"
-loadingText="Loading more movies...">
-</ion-infinite-scroll-content>
-</ion-infinite-scroll>
-</div>
-
-<!-- No Results Message -->
-<div *ngIf="!isLoading && !errorMessage && searchResults.length === 0 && searchQuery"
-class="no-results">
-<ion-icon name="film-outline" class="no-results-icon"></ion-icon>
+<!-- On Search Message -->
+<div *ngIf="!isLoading && !errorMessage && searchResults.length === 0 && searchQuery" class="on-search">
+<ion-icon name="film-outline" class="on-search-icon"></ion-icon>
 <ion-text color="medium">
-<p>No results found for "{{ searchQuery }}"</p>
+<h3>Discover Movies</h3>
+<p>Click the search button to look for "{{ searchQuery }} through our library of movies."</p>
+<p class="suggestion-text">Make sure you spell the title of the movie correctly.</p>
 </ion-text>
 </div>
 
 <!-- Initial State -->
-<div *ngIf="!isLoading && !errorMessage && searchResults.length === 0 && !searchQuery"
-class="initial-state">
+<div *ngIf="!isLoading && !errorMessage && searchResults.length === 0 && !searchQuery" class="initial-state">
+<div class="initial-content">
+<ion-icon name="search-circle-outline" class="initial-icon"></ion-icon>
+<h3>Discover Movies</h3>
+<p>Search for your favorite movies and add them to your watchlist</p>
 </div>
 </div>
-</ion-content>
+</div>
 
+<!-- Fixed Tab Bar -->
 <div class="tabs-group">
 <ion-tab-bar slot="bottom">
 <ion-tab-button class="active-tab" (click)="goToSearch()">
 <ion-icon name="search-outline"></ion-icon>
-Search
+<ion-label>Search</ion-label>
 </ion-tab-button>
 <ion-tab-button (click)="goToWatchlist()">
 <ion-icon name="list-outline"></ion-icon>
-Watchlist
+<ion-label>Watchlist</ion-label>
 </ion-tab-button>
 <ion-tab-button (click)="goToWatched()">
 <ion-icon name="checkmark-circle-outline"></ion-icon>
-Watched
+<ion-label>Watched</ion-label>
+</ion-tab-button>
+<ion-tab-button (click)="goToStats()">
+<ion-icon name="stats-chart-outline"></ion-icon>
+<ion-label>Statistics</ion-label>
 </ion-tab-button>
 <ion-tab-button (click)="logOut()">
 <ion-icon name="log-out-outline"></ion-icon>
-Logout
+<ion-label>Logout</ion-label>
 </ion-tab-button>
 </ion-tab-bar>
 </div>
+</ion-content>

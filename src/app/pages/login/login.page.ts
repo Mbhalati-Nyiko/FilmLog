@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { IonInput, IonToast } from "@ionic/angular/standalone";
 import { ReactiveFormsModule } from '@angular/forms';
 import { AuthenticationService } from '../../service/authentication-service';
-import { Router } from '@angular/router';
+import { Router, ActivatedRoute } from '@angular/router';  // Add ActivatedRoute
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { firstValueFrom } from 'rxjs';
 import { CommonModule } from '@angular/common';
@@ -23,10 +23,12 @@ export class LoginPage implements OnInit {
   showToast: boolean = false;
   toastMessage: string = '';
   toastColor: string = 'success';
+  returnUrl: string = '/search';  // Default return URL
 
   constructor(
     private authService: AuthenticationService,
     private router: Router,
+    private route: ActivatedRoute,  // Add this
     private fb: FormBuilder
   ) {
     this.loginForm = this.fb.group({
@@ -42,8 +44,11 @@ export class LoginPage implements OnInit {
   }
 
   ngOnInit() {
+    // Get return URL from query params
+    this.returnUrl = this.route.snapshot.queryParamMap.get('returnUrl') || '/search';
+
     if (this.authService.isAuthenticated()) {
-      this.router.navigate(['/search']);
+      this.router.navigate([this.returnUrl]);
     }
   }
 
@@ -90,7 +95,9 @@ export class LoginPage implements OnInit {
 
       console.log('Login successful', response);
       this.resetForms();
-      this.router.navigate(['/search']);
+
+      // Navigate to return URL instead of always going to search
+      this.router.navigate([this.returnUrl]);
 
     } catch (error: any) {
       this.showToastMessage(error.message || 'Invalid username or password', 'danger');

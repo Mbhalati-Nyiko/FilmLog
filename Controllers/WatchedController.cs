@@ -8,7 +8,7 @@ namespace FilmLog.Controllers
 {
   [ApiController]
   [Route("api/[controller]")]
-  [Authorize]  // Add authentication
+  [Authorize]
   public class WatchedController : ControllerBase
   {
     private readonly IWatchedRepo _repository;
@@ -18,14 +18,11 @@ namespace FilmLog.Controllers
       _repository = repository;
     }
 
-    // Add this method to WatchedController.cs if not present
     [HttpGet("by-imdb/{imdbId}")]
     public async Task<ActionResult<WatchedItem>> GetByImdbId(string imdbId)
     {
       var userId = GetCurrentUserId();
-      var watchedItems = await _repository.GetByUserIdAsync(userId);
-      var item = watchedItems.FirstOrDefault(w => w.ImdbID == imdbId);
-
+      var item = await _repository.GetByUserAndImdbId(userId, imdbId);
       if (item == null) return NotFound();
       return Ok(item);
     }
@@ -33,7 +30,7 @@ namespace FilmLog.Controllers
     [HttpGet]
     public async Task<ActionResult<List<WatchedItem>>> GetAll()
     {
-      var userId = GetCurrentUserId();  // Get from JWT
+      var userId = GetCurrentUserId();
       var watchedMovies = await _repository.GetByUserIdAsync(userId);
       return Ok(watchedMovies);
     }
@@ -44,7 +41,6 @@ namespace FilmLog.Controllers
       var watched = await _repository.GetByIdAsync(id);
       if (watched == null) return NotFound();
 
-      // Verify ownership
       var userId = GetCurrentUserId();
       if (watched.UserId != userId) return Unauthorized();
 
@@ -55,11 +51,23 @@ namespace FilmLog.Controllers
     public async Task<ActionResult<WatchedItem>> Create(WatchedItem watched)
     {
       var userId = GetCurrentUserId();
-      watched.UserId = userId;  // Set user ID
 
-      // Check for duplicates
-      if (await _repository.ExistsAsync(userId, watched.ImdbID))
-        return BadRequest("Movie already in watched list");
+      // Check if already in watched list
+      var existing = await _repository.GetByUserAndImdbId(userId, watched.ImdbID);
+
+      if (existing != null)
+      {
+        // Increment times watched instead of creating duplicate
+        existing.TimesWatched++;
+        existing.LastWatchedAt = DateTime.UtcNow;
+        await _repository.UpdateAsync(existing);
+        return Ok(existing);
+      }
+
+      watched.UserId = userId;
+      watched.TimesWatched = 1;
+      watched.LastWatchedAt = DateTime.UtcNow;
+      watched.WatchedAt = DateTime.UtcNow;
 
       var created = await _repository.AddAsync(watched);
       return CreatedAtAction(nameof(GetById), new { id = created.Id }, created);
@@ -93,7 +101,7 @@ namespace FilmLog.Controllers
     private int GetCurrentUserId()
     {
       var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier);
-      return int.Parse(userIdClaim.Value);
+      return int.Parse(userIdClaim?.Value ?? "0");
     }
   }
 }
